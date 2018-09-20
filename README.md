@@ -1,3 +1,3 @@
-# lifion-kinesis-client
+# lifion-kinesis
 
-Lifion's Node.js client for Amazon Data Streams
+Lifion's Node.js client for Amazon Kinesis Data Streams
