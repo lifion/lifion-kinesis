@@ -34,7 +34,8 @@
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.318.0"
+    "aws-sdk": "^2.320.0",
+    "fast-deep-equal": "^2.0.1"
   },
   "devDependencies": {
     "auto-changelog": "^1.8.0",
@@ -46,9 +47,9 @@
     "jest": "^23.6.0",
     "jest-junit-reporter": "^1.1.0",
     "jsdoc-to-markdown": "^4.0.1",
-    "lint-staged": "^7.2.2",
+    "lint-staged": "^7.3.0",
     "npm-watch": "^0.3.0",
-    "prettier": "^1.14.2",
+    "prettier": "^1.14.3",
     "semver": "^5.5.1"
   },
   "auto-changelog": {
