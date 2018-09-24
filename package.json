@@ -24,13 +24,14 @@
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json --cache",
     "format": "prettier --write '**/*.{eslintrc,md,js,json}' '!reports/*'",
+    "jest": "TEST_REPORT_PATH=./reports jest",
+    "jest-watch": "npm run jest -- --watch --coverageReporters=html",
     "lint": "eslint . --ext .js,.json --cache -f checkstyle > ./reports/checkstyle.xml",
     "precommit": "npm run build-docs && lint-staged",
     "prelint": "rm -f ./reports/checkstyle.xml && mkdir -p ./reports",
     "prepare": "check-engines",
     "pretest": "mkdir -p ./reports",
-    "test": "TEST_REPORT_PATH=./reports jest && codecov",
-    "test-watch": "npm run test -- --watch --coverageReporters=html",
+    "test": "npm run jest && codecov",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
