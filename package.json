@@ -49,7 +49,7 @@
     "jest-junit-reporter": "^1.1.0",
     "jsdoc-to-markdown": "^4.0.1",
     "lint-staged": "^7.3.0",
-    "npm-watch": "^0.3.0",
+    "npm-watch": "^0.4.0",
     "prettier": "^1.14.3",
     "semver": "^5.5.1"
   },
@@ -90,6 +90,13 @@
   "prettier": {
     "printWidth": 100,
     "singleQuote": true
+  },
+  "renovate": {
+    "extends": [
+      "config:base"
+    ],
+    "branchPrefix": "feature/renovate-",
+    "rangeStrategy": "bump"
   },
   "watch": {
     "build-docs": {
