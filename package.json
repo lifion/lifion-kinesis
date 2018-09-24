@@ -87,6 +87,13 @@
     "printWidth": 100,
     "singleQuote": true
   },
+  "renovate": {
+    "extends": [
+      "config:base"
+    ],
+    "branchPrefix": "feature/renovate-",
+    "rangeStrategy": "bump"
+  },  
   "watch": {
     "build-docs": {
       "patterns": [
