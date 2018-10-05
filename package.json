@@ -28,7 +28,7 @@
     "jest-watch": "npm run jest -- --watch --coverageReporters=html",
     "lint": "eslint . --ext .js,.json --format junit -o ./reports/junit/js-lint-results.xml",
     "prepare": "check-engines",
-    "test": "npm run jest -- --ci --runInBand; codecov",
+    "test": "npm run jest -- --ci --runInBand && codecov",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
