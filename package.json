@@ -24,13 +24,11 @@
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json --cache",
     "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
-    "jest": "TEST_REPORT_PATH=./reports jest",
+    "jest": "JEST_JUNIT_OUTPUT=./reports/junit/js-test-results.xml jest",
     "jest-watch": "npm run jest -- --watch --coverageReporters=html",
-    "lint": "eslint . --ext .js,.json",
-    "precommit": "npm run build-docs && lint-staged",
-    "prejest": "mkdir -p ./reports",
+    "lint": "eslint . --ext .js,.json --format junit -o ./reports/junit/js-lint-results.xml",
     "prepare": "check-engines",
-    "test": "npm run jest && codecov",
+    "test": "npm run jest -- --ci --runInBand; codecov",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
@@ -38,7 +36,7 @@
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.2.2",
-    "hex-debug": "^2.0.2"
+    "lifion-aws-event-stream": "^1.0.0"
   },
   "devDependencies": {
     "auto-changelog": "^1.8.0",
@@ -49,7 +47,7 @@
     "eslint-config-lifion": "^1.0.1",
     "husky": "^1.1.1",
     "jest": "^23.6.0",
-    "jest-junit-reporter": "^1.1.0",
+    "jest-junit": "^5.2.0",
     "jsdoc-to-markdown": "^4.0.1",
     "lint-staged": "^7.3.0",
     "npm-watch": "^0.4.0",
@@ -58,17 +56,22 @@
   },
   "auto-changelog": {
     "commitLimit": false,
-    "template": "./templates/changelog-template.hbs"
+    "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
     "extends": "lifion"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build-docs && lint-staged"
+    }
   },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/*.js"
     ],
-    "coverageDirectory": "../reports",
+    "coverageDirectory": "../reports/coverage",
     "coverageThreshold": {
       "global": {
         "statements": 0,
@@ -77,9 +80,12 @@
         "lines": 0
       }
     },
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
     "rootDir": "lib",
-    "testEnvironment": "node",
-    "testResultsProcessor": "jest-junit-reporter"
+    "testEnvironment": "node"
   },
   "lint-staged": {
     "*.js": [
@@ -96,10 +102,13 @@
     "singleQuote": true
   },
   "renovate": {
+    "branchPrefix": "feature/renovate-",
+    "engines": {
+      "enabled": false
+    },
     "extends": [
       "config:base"
     ],
-    "branchPrefix": "feature/renovate-",
     "rangeStrategy": "bump"
   },
   "watch": {
