@@ -18,6 +18,10 @@ jobs:
             - ./node_modules
       - run: npm run lint
       - run: npm test
+      - store_test_results:
+          path: ./reports/junit
+      - store_artifacts:
+          path: ./reports/junit
 
   deploy:
     docker:
@@ -34,8 +38,8 @@ jobs:
           key: dependencies-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
-      - run: npm publish
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/project/.npmrc
+      - run: npm publish --verbose
 
 workflows:
   version: 2
