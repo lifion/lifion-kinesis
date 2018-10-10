@@ -32,19 +32,20 @@
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.322.0",
+    "aws-sdk": "^2.331.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.2.2",
-    "lifion-aws-event-stream": "^1.0.0"
+    "lifion-aws-event-stream": "^1.0.0",
+    "lzutf8": "^0.5.5"
   },
   "devDependencies": {
-    "auto-changelog": "^1.8.0",
+    "auto-changelog": "^1.8.1",
     "chalk": "^2.4.1",
     "check-engines": "^1.5.0",
     "codecov": "^3.1.0",
     "eslint": "^5.6.1",
-    "eslint-config-lifion": "^1.0.1",
+    "eslint-config-lifion": "^1.0.2",
     "husky": "^1.1.1",
     "jest": "^23.6.0",
     "jest-junit": "^5.2.0",
