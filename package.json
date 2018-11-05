@@ -93,7 +93,7 @@
     ],
     "branchPrefix": "feature/renovate-",
     "rangeStrategy": "bump"
-  },  
+  },
   "watch": {
     "build-docs": {
       "patterns": [
