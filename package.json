@@ -46,7 +46,7 @@
     "jsdoc-to-markdown": "^4.0.1",
     "lint-staged": "^8.0.4",
     "npm-watch": "^0.4.0",
-    "prettier": "^1.14.3",
+    "prettier": "^1.15.2",
     "semver": "^5.6.0"
   },
   "auto-changelog": {
