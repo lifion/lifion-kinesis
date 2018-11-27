@@ -11,7 +11,7 @@ jobs:
       - restore_cache:
           keys:
             - dependencies-{{ checksum "package-lock.json" }}
-      - run: npm install
+      - run: npm ci
       - save_cache:
           key: dependencies-{{ checksum "package-lock.json" }}
           paths:
@@ -33,7 +33,7 @@ jobs:
       - restore_cache:
           keys:
             - dependencies-{{ checksum "package-lock.json" }}
-      - run: npm install
+      - run: npm ci
       - save_cache:
           key: dependencies-{{ checksum "package-lock.json" }}
           paths:
