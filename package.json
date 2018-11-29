@@ -13,14 +13,14 @@
     "kinesis",
     "lifion"
   ],
-  "author": "Edgardo Avilés <eaviles@gmail.com>",
+  "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
   "license": "MIT",
   "main": "lib/index.js",
   "engines": {
     "node": ">=10.0.0"
   },
   "scripts": {
-    "build-docs": "mkdir -p docs && jsdoc2md --no-gfm lib/*.js > docs/API.md && git add docs/API.md",
+    "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json --cache",
     "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
@@ -60,7 +60,10 @@
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion"
+    "extends": "lifion",
+    "rules": {
+      "jsdoc/require-returns-description": "off"
+    }
   },
   "husky": {
     "hooks": {
