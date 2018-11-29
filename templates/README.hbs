@@ -1,0 +1,68 @@
+# lifion-kinesis
+
+Lifion's Node.js client for [Amazon Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/).
+
+## Getting Started
+
+To install the module:
+
+```sh
+npm install lifion-kinesis --save
+```
+
+The main module export is a Kinesis class that instantiates as a [readable stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams).
+
+```js
+const Kinesis = require('lifion-kinesis');
+
+const client = new Kinesis({
+  streamName: 'sample-stream',
+  consumerName: 'sample-consumer'
+  /* other options from AWS.Kinesis */
+});
+client.on('data', (chunk) => {
+  console.log('Incoming data:', chunk);
+});
+```
+
+To take advantage of back-pressure, the client can be piped to a writable stream:
+
+```js
+const Kinesis = require('lifion-kinesis');
+const { pipeline } = require('stream');
+
+pipeline([
+  new Kinesis(/* options */),
+  new Writable({
+    objectMode: true,
+    write(data, encoding, callback) {
+      console.log(data);
+      callback();
+    }
+  }),
+]);
+```
+
+## Features
+
+- Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
+- Node.js implementation of the new enhanced fan-out feature.
+- Optional auto-creation, encryption, and tagging of Kinesis streams.
+
+**Incoming Features:**
+
+- Support for a polling mode, using the [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html), with automatic checkpointing.
+- Support for multiple concurrent consumers through automatic assignment of shards.
+- Support for sending messages to streams, with auto-retries.
+
+## API Reference
+
+{{#module name="lifion-kinesis"}}
+{{>member-index~}}
+{{>separator~}}
+{{>members~}}
+{{/module}}
+
+## License
+
+[MIT](./LICENSE)

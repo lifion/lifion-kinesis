@@ -1,11 +1,6 @@
 *.test.js
-.config
-/.eslintcache
-/.eslintignore
-/.nvmrc
-/CODE_OF_CONDUCT.md
-/CONTRIBUTING.md
+/.*
 /docs
 /reports
-/scripts
+/templates
 __mocks__
