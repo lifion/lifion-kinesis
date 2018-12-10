@@ -44,7 +44,7 @@
     "chalk": "^2.4.1",
     "check-engines": "^1.5.0",
     "codecov": "^3.1.0",
-    "eslint": "^5.9.0",
+    "eslint": "^5.10.0",
     "eslint-config-lifion": "^1.0.3",
     "husky": "^1.2.0",
     "jest": "^23.6.0",
