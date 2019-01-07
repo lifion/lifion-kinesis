@@ -60,7 +60,7 @@ pipeline([
 - [lifion-kinesis](#module_lifion-kinesis)
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ [<code>Readable</code>](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams) ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
-    - [.connect()](#module_lifion-kinesis--Kinesis+connect) ⇒ <code>Promise</code>
+    - [.connect()](#module_lifion-kinesis--Kinesis+connect)
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -96,7 +96,7 @@ Initializes a new instance of the Kinesis client.
 
 <a name="module_lifion-kinesis--Kinesis+connect"></a>
 
-#### kinesis.connect() ⇒ <code>Promise</code>
+#### kinesis.connect()
 
 Initializes the Kinesis client, then it proceeds to:
 

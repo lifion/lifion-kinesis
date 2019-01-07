@@ -106,13 +106,23 @@
     "singleQuote": true
   },
   "renovate": {
+    "assignees": [
+      "eaviles",
+      "kenzable"
+    ],
+    "automerge": true,
     "branchPrefix": "feature/renovate-",
     "engines": {
-      "enabled": false
+      "node": {
+        "enabled": false
+      }
     },
     "extends": [
       "config:base"
     ],
+    "major": {
+      "automerge": false
+    },
     "rangeStrategy": "bump"
   },
   "watch": {
