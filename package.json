@@ -32,7 +32,7 @@
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.387.0",
+    "aws-sdk": "^2.388.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.5.1",
