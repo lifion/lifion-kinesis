@@ -36,7 +36,7 @@
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
-    "lifion-aws-event-stream": "^1.0.1",
+    "lifion-aws-event-stream": "^1.0.2",
     "lzutf8": "^0.5.5"
   },
   "devDependencies": {
