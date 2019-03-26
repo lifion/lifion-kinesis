@@ -60,7 +60,7 @@ pipeline([
 - [lifion-kinesis](#module_lifion-kinesis)
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ [<code>Readable</code>](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams) ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
-    - [.connect()](#module_lifion-kinesis--Kinesis+connect)
+    - [.start()](#module_lifion-kinesis--Kinesis+start) ⇒ <code>Promise</code>
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -80,23 +80,26 @@ be retrieved through either the `data` event or by piping the instance to a writ
 
 Initializes a new instance of the Kinesis client.
 
-| Param                          | Type                 | Default            | Description                                                                                                                                                                                                                                                    |
-| ------------------------------ | -------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| options                        | <code>Object</code>  |                    | The initialization options. In addition to the below options, this object can also contain the [`AWS.Kinesis` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#constructor-property).                                             |
-| [options.compression]          | <code>string</code>  |                    | The kind of data compression to use with records. The currently available compression options are either `"LZ-UTF8"` or none.                                                                                                                                  |
-| options.consumerName           | <code>string</code>  |                    | The unique name of the consumer for the given stream. This option is required.                                                                                                                                                                                 |
-| [options.createStreamIfNeeded] | <code>boolean</code> | <code>false</code> | Whether if the Kinesis stream should be created if it doesn't exist upon connection.                                                                                                                                                                           |
-| [options.encryption]           | <code>Object</code>  |                    | The encryption options to enforce in the stream.                                                                                                                                                                                                               |
-| [options.encryption.type]      | <code>string</code>  |                    | The encryption type to use.                                                                                                                                                                                                                                    |
-| [options.encryption.keyId]     | <code>string</code>  |                    | The GUID for the customer-managed AWS KMS key to use for encryption. This value can be a globally unique identifier, a fully specified ARN to either an alias or a key, or an alias name prefixed by "alias/".                                                 |
-| [options.logger]               | <code>Object</code>  |                    | An object with the `warn`, `debug`, and `error` functions that will be used for logging purposes. If not provided, logging will be omitted.                                                                                                                    |
-| [options.shardCount]           | <code>number</code>  | <code>1</code>     | The number of shards that the newly-created stream will use (if the `createStreamIfNeeded` option is set).                                                                                                                                                     |
-| options.streamName             | <code>string</code>  |                    | The name of the stream to consume data from. This option is required.                                                                                                                                                                                          |
-| [options.tags]                 | <code>Object</code>  |                    | If provided, the client will ensure that the stream is tagged with these hash of tags upon connection. If the stream is already tagged same tag keys, they won't be overriden. If the stream is already tagged with different tag keys, they won't be removed. |
+| Param                            | Type                 | Default            | Description                                                                                                                                                                                                                                                    |
+| -------------------------------- | -------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options                          | <code>Object</code>  |                    | The initialization options. In addition to the below options, this object can also contain the [`AWS.Kinesis` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#constructor-property).                                             |
+| [options.compression]            | <code>string</code>  |                    | The kind of data compression to use with records. The currently available compression options are either `"LZ-UTF8"` or none.                                                                                                                                  |
+| [options.consumerName]           | <code>string</code>  |                    | The unique name of the consumer for the given stream. This option is required if `options.useEnhancedFanOut` is true.                                                                                                                                          |
+| [options.createStreamIfNeeded]   | <code>boolean</code> | <code>false</code> | Whether if the Kinesis stream should be created if it doesn't exist upon connection.                                                                                                                                                                           |
+| [options.encryption]             | <code>Object</code>  |                    | The encryption options to enforce in the stream.                                                                                                                                                                                                               |
+| [options.encryption.type]        | <code>string</code>  |                    | The encryption type to use.                                                                                                                                                                                                                                    |
+| [options.encryption.keyId]       | <code>string</code>  |                    | The GUID for the customer-managed AWS KMS key to use for encryption. This value can be a globally unique identifier, a fully specified ARN to either an alias or a key, or an alias name prefixed by "alias/".                                                 |
+| [options.logger]                 | <code>Object</code>  |                    | An object with the `warn`, `debug`, and `error` functions that will be used for logging purposes. If not provided, logging will be omitted.                                                                                                                    |
+| [options.shardCount]             | <code>number</code>  | <code>1</code>     | The number of shards that the newly-created stream will use (if the `createStreamIfNeeded` option is set).                                                                                                                                                     |
+| options.streamName               | <code>string</code>  |                    | The name of the stream to consume data from. This option is required.                                                                                                                                                                                          |
+| [options.tags]                   | <code>Object</code>  |                    | If provided, the client will ensure that the stream is tagged with these hash of tags upon connection. If the stream is already tagged same tag keys, they won't be overriden. If the stream is already tagged with different tag keys, they won't be removed. |
+| [options.useAutoCheckpoints]     | <code>boolean</code> | <code>true</code>  | Set to true to automatically checkpoint as messages are reported back to consumers of the client.                                                                                                                                                              |
+| [options.useAutoShardAssignment] | <code>boolean</code> | <code>true</code>  | Set to true to automatically assign the stream shards to all the active clients so only one client reads from one shard at the same time. Set to false to make the client read from all shards.                                                                |
+| [options.useEnhancedFanOut]      | <code>boolean</code> | <code>false</code> | Set to true to make the client use enhanced fan-out consumers to read from shards.                                                                                                                                                                             |
 
-<a name="module_lifion-kinesis--Kinesis+connect"></a>
+<a name="module_lifion-kinesis--Kinesis+start"></a>
 
-#### kinesis.connect()
+#### kinesis.start() ⇒ <code>Promise</code>
 
 Initializes the Kinesis client, then it proceeds to:
 
@@ -110,6 +113,7 @@ Initializes the Kinesis client, then it proceeds to:
 8. Data will then be available in both [stream read modes](external:readModes).
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Returns**: <code>Promise</code> - nothing  
 **Fulfil**: Once the stream is active, encrypted, tagged, the enhanced fan-out consumer is active,
 and the client is subscribed to the data in all the stream shards.  
 **Reject**: <code>Error</code> - If at least one of the above steps fails to succeed.
