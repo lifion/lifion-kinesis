@@ -37,7 +37,8 @@
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
     "lifion-aws-event-stream": "^1.0.2",
-    "lzutf8": "^0.5.5"
+    "lzutf8": "^0.5.5",
+    "short-uuid": "^3.1.0"
   },
   "devDependencies": {
     "auto-changelog": "^1.12.0",
@@ -54,6 +55,24 @@
     "npm-watch": "^0.6.0",
     "prettier": "^1.16.4",
     "semver": "^5.6.0"
+  },
+  "stateTableDefinition": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "streamName",
+        "AttributeType": "S"
+      }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+      {
+        "AttributeName": "streamName",
+        "KeyType": "HASH"
+      }
+    ],
+    "SSESpecification": {
+      "Enabled": true
+    }
   },
   "auto-changelog": {
     "commitLimit": false,
