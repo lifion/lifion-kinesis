@@ -38,6 +38,7 @@
     "got": "^9.6.0",
     "lifion-aws-event-stream": "^1.0.2",
     "lzutf8": "^0.5.5",
+    "project-name": "^1.0.0",
     "short-uuid": "^3.1.0"
   },
   "devDependencies": {
