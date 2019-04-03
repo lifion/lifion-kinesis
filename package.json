@@ -32,6 +32,7 @@
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
+    "async-retry": "^1.2.3",
     "aws-sdk": "^2.429.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
