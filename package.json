@@ -58,32 +58,6 @@
     "prettier": "^1.16.4",
     "semver": "^6.0.0"
   },
-  "stateTableDefinition": {
-    "AttributeDefinitions": [
-      {
-        "AttributeName": "consumerGroup",
-        "AttributeType": "S"
-      },
-      {
-        "AttributeName": "streamName",
-        "AttributeType": "S"
-      }
-    ],
-    "BillingMode": "PAY_PER_REQUEST",
-    "KeySchema": [
-      {
-        "AttributeName": "consumerGroup",
-        "KeyType": "HASH"
-      },
-      {
-        "AttributeName": "streamName",
-        "KeyType": "RANGE"
-      }
-    ],
-    "SSESpecification": {
-      "Enabled": true
-    }
-  },
   "auto-changelog": {
     "commitLimit": false,
     "template": "./templates/CHANGELOG.hbs"
