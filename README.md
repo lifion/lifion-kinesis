@@ -60,7 +60,9 @@ pipeline([
 - [lifion-kinesis](#module_lifion-kinesis)
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ <code>external:Readable</code> ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
-    - [.start()](#module_lifion-kinesis--Kinesis+start) ⇒ <code>Promise</code>
+    - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
+    - [.putRecord(options)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
+    - [.putRecords(options)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -102,9 +104,9 @@ Initializes a new instance of the Kinesis client.
 | [options.useEnhancedFanOut]      | <code>boolean</code> | <code>false</code> | Set to `true` to make the client use enhanced fan-out consumers to read from shards.                                                                                                                                                                                                  |
 | [options.usePausedPolling]       | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to poll for more records until the consumer calls `continuePolling()`. This option is useful when consumers want to make sure the records are fully processed before receiving more (only applicable when `useEnhancedFanOut` is set to `false`) |
 
-<a name="module_lifion-kinesis--Kinesis+start"></a>
+<a name="module_lifion-kinesis--Kinesis+startConsumer"></a>
 
-#### kinesis.start() ⇒ <code>Promise</code>
+#### kinesis.startConsumer() ⇒ <code>Promise</code>
 
 Initializes the client, by ensuring that the stream exists, it's ready, and configured as
 requested. The internal managers that deal with heartbeats, state, and consumers will also
@@ -112,7 +114,39 @@ be started.
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
 **Fulfil**: Once the client has successfully started.  
-**Reject**: <code>Error</code> - On any unexpected error while trying to start.
+**Reject**: <code>Error</code> - On any unexpected error while trying to start.  
+<a name="module_lifion-kinesis--Kinesis+putRecord"></a>
+
+#### kinesis.putRecord(options) ⇒ <code>Promise</code>
+
+Puts a record to a stream.
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Fulfil**: If record is successfully pushed to stream.  
+**Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
+
+| Param                | Type                                       | Description                                                                                                                                                                                                                                       |
+| -------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options              | <code>Object</code>                        | The putRecord options. In addition to the params described here, uses [`AWS.Kinesis.putRecord` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecord-property) from the AwsJsSdk putRecord method in camelCase. |
+| options.data         | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                       |
+| [options.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                          |
+
+<a name="module_lifion-kinesis--Kinesis+putRecords"></a>
+
+#### kinesis.putRecords(options) ⇒ <code>Promise</code>
+
+Batch puts multiple records to a stream.
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Fulfil**: If records are successfully pushed to stream.  
+**Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
+
+| Param                | Type                                       | Description                                                                                                                                                                                                                                           |
+| -------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options              | <code>Object</code>                        | The putRecords options. In addition to the params described here, uses [`AWS.Kinesis.putRecords` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecords-property) from the AwsJsSdk putRecords method in camelCase. |
+| options.records      | <code>Array</code>                         | A list of records to push to a Kinesis stream.                                                                                                                                                                                                        |
+| options.records.data | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                           |
+| [options.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                              |
 
 ## License
 
