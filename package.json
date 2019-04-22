@@ -1,6 +1,6 @@
 {
   "name": "lifion-kinesis",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lifion client for Amazon Kinesis Data streams",
   "keywords": [
     "adp",
@@ -25,35 +25,38 @@
     "eslint": "eslint . --ext .js,.json --cache",
     "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
     "jest": "JEST_JUNIT_OUTPUT=./reports/junit/js-test-results.xml jest",
-    "jest-watch": "npm run jest -- --watch --coverageReporters=html",
     "lint": "eslint . --ext .js,.json --format junit -o ./reports/junit/js-lint-results.xml",
     "prepare": "check-engines",
     "test": "npm run jest -- --ci --runInBand && codecov",
+    "test-watch": "npm run jest -- --watch --coverageReporters=html",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.366.0",
+    "async-retry": "^1.2.3",
+    "aws-sdk": "^2.441.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
-    "got": "^9.3.2",
-    "lifion-aws-event-stream": "^1.0.1",
-    "lzutf8": "^0.5.5"
+    "got": "^9.6.0",
+    "lifion-aws-event-stream": "^1.0.2",
+    "lzutf8": "^0.5.5",
+    "project-name": "^1.0.0",
+    "short-uuid": "^3.1.0"
   },
   "devDependencies": {
-    "auto-changelog": "^1.10.2",
-    "chalk": "^2.4.1",
+    "auto-changelog": "^1.13.0",
+    "chalk": "^2.4.2",
     "check-engines": "^1.5.0",
-    "codecov": "^3.1.0",
-    "eslint": "^5.9.0",
-    "eslint-config-lifion": "^1.0.3",
-    "husky": "^1.2.0",
-    "jest": "^23.6.0",
-    "jest-junit": "^5.2.0",
+    "codecov": "^3.3.0",
+    "eslint": "^5.16.0",
+    "eslint-config-lifion": "^1.1.0",
+    "husky": "^1.3.1",
+    "jest": "^24.7.1",
+    "jest-junit": "^6.3.0",
     "jsdoc-to-markdown": "^4.0.1",
-    "lint-staged": "^8.1.0",
-    "npm-watch": "^0.5.0",
-    "prettier": "^1.15.2",
-    "semver": "^5.6.0"
+    "lint-staged": "^8.1.5",
+    "npm-watch": "^0.6.0",
+    "prettier": "^1.17.0",
+    "semver": "^6.0.0"
   },
   "auto-changelog": {
     "commitLimit": false,
@@ -106,13 +109,23 @@
     "singleQuote": true
   },
   "renovate": {
+    "assignees": [
+      "eaviles",
+      "kenzable"
+    ],
+    "automerge": true,
     "branchPrefix": "feature/renovate-",
     "engines": {
-      "enabled": false
+      "node": {
+        "enabled": false
+      }
     },
     "extends": [
       "config:base"
     ],
+    "major": {
+      "automerge": false
+    },
     "rangeStrategy": "bump"
   },
   "watch": {
