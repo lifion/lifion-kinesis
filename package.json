@@ -71,7 +71,8 @@
     "rules": {
       "jsdoc/require-returns-description": "off",
       "no-await-in-loop": "off",
-      "sort-destructure-keys/sort-destructure-keys": "error"
+      "sort-destructure-keys/sort-destructure-keys": "error",
+      "sort-keys": "error"
     }
   },
   "husky": {
