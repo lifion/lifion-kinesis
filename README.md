@@ -60,12 +60,9 @@ pipeline([
 - [lifion-kinesis](#module_lifion-kinesis)
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ <code>external:Readable</code> ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
-    - _instance_
-      - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
-      - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
-      - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
-    - _inner_
-      - [~setUpEnhancedConsumers(instance)](#module_lifion-kinesis--Kinesis..setUpEnhancedConsumers) ⇒ <code>Promise</code>
+    - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
+    - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
+    - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -150,24 +147,6 @@ Batch puts multiple records to a stream.
 | params.records      | <code>Array</code>                         | A list of records to push to a Kinesis stream.                                                                                                                                                                                                                    |
 | params.records.data | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                                       |
 | [params.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                                          |
-
-<a name="module_lifion-kinesis--Kinesis..setUpEnhancedConsumers"></a>
-
-#### Kinesis~setUpEnhancedConsumers(instance) ⇒ <code>Promise</code>
-
-If the `useEnhancedFanOut` option is enabled, this function will be called to prepare for the
-automated distribution of the Amazon-registered enhanced fan-out consumers into the consumers
-of this module on the same consumer group. The preparation consist in the pre-registration of
-the maximum allowed number of enhanced fan-out consumers in Amazon, and also in making sure
-that the state of the stream, in DynamoDB, reflects the existing enhanced fan-out consumers.
-Stale state will be removed, existing enhanced fan-out consumers not registered by this module
-will be preserved and used in the automated distribution.
-
-**Kind**: inner method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)
-
-| Param    | Type                | Description                                       |
-| -------- | ------------------- | ------------------------------------------------- |
-| instance | <code>Object</code> | A reference to the instance of the Kinesis class. |
 
 ## License
 
