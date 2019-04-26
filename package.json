@@ -22,13 +22,13 @@
   "scripts": {
     "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",
     "build-docs-watch": "npm-watch build-docs",
-    "eslint": "eslint . --ext .js,.json --cache",
+    "eslint": "eslint . --ext .js,.json",
     "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
     "jest": "JEST_JUNIT_OUTPUT=./reports/junit/js-test-results.xml jest",
     "lint": "eslint . --ext .js,.json --format junit -o ./reports/junit/js-lint-results.xml",
     "prepare": "check-engines",
     "test": "npm run jest -- --ci --runInBand && codecov",
-    "test-watch": "npm run jest -- --watch --coverageReporters=html",
+    "test-watch": "npm run jest -- --watchAll --coverageReporters=html",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
@@ -49,6 +49,7 @@
     "codecov": "^3.3.0",
     "eslint": "^5.16.0",
     "eslint-config-lifion": "^1.1.0",
+    "eslint-plugin-sort-destructure-keys": "^1.3.0",
     "husky": "^2.1.0",
     "jest": "^24.7.1",
     "jest-junit": "^6.3.0",
@@ -64,8 +65,14 @@
   },
   "eslintConfig": {
     "extends": "lifion",
+    "plugins": [
+      "sort-destructure-keys"
+    ],
     "rules": {
-      "jsdoc/require-returns-description": "off"
+      "jsdoc/require-returns-description": "off",
+      "no-await-in-loop": "off",
+      "sort-destructure-keys/sort-destructure-keys": "error",
+      "sort-keys": "error"
     }
   },
   "husky": {
