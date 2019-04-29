@@ -15,14 +15,14 @@ The main module export is a Kinesis class that instantiates as a [readable strea
 ```js
 const Kinesis = require('lifion-kinesis');
 
-const client = new Kinesis({
+const kinesis = new Kinesis({
   streamName: 'sample-stream',
-  consumerName: 'sample-consumer'
   /* other options from AWS.Kinesis */
 });
-client.on('data', (chunk) => {
+kinesis.on('data', (chunk) => {
   console.log('Incoming data:', chunk);
 });
+kinesis.startConsumer();
 ```
 
 To take advantage of back-pressure, the client can be piped to a writable stream:
