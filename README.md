@@ -61,8 +61,8 @@ pipeline([
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ <code>external:Readable</code> ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
     - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
-    - [.putRecord(options)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
-    - [.putRecords(options)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
+    - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
+    - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -117,7 +117,7 @@ be started.
 **Reject**: <code>Error</code> - On any unexpected error while trying to start.  
 <a name="module_lifion-kinesis--Kinesis+putRecord"></a>
 
-#### kinesis.putRecord(options) ⇒ <code>Promise</code>
+#### kinesis.putRecord(params) ⇒ <code>Promise</code>
 
 Puts a record to a stream.
 
@@ -125,15 +125,15 @@ Puts a record to a stream.
 **Fulfil**: If record is successfully pushed to stream.  
 **Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
 
-| Param                | Type                                       | Description                                                                                                                                                                                                                                             |
-| -------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| options              | <code>Object</code>                        | The putRecord options. In addition to the params described here, uses [`AWS.Kinesis.putRecord` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecord-property) from the `AWS.Kinesis.putRecord` method in camel case. |
-| options.data         | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                             |
-| [options.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                                |
+| Param               | Type                                       | Description                                                                                                                                                                                                                                                   |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| params              | <code>Object</code>                        | The putRecord parameters. In addition to the params described here, uses [`AWS.Kinesis.putRecord` parameters](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecord-property) from the `AWS.Kinesis.putRecord` method in camel case. |
+| params.data         | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                                   |
+| [params.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                                      |
 
 <a name="module_lifion-kinesis--Kinesis+putRecords"></a>
 
-#### kinesis.putRecords(options) ⇒ <code>Promise</code>
+#### kinesis.putRecords(params) ⇒ <code>Promise</code>
 
 Batch puts multiple records to a stream.
 
@@ -141,12 +141,12 @@ Batch puts multiple records to a stream.
 **Fulfil**: If records are successfully pushed to stream.  
 **Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
 
-| Param                | Type                                       | Description                                                                                                                                                                                                                                                 |
-| -------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| options              | <code>Object</code>                        | The putRecords options. In addition to the params described here, uses [`AWS.Kinesis.putRecords` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecords-property) from the `AWS.Kinesis.putRecords` method in camel case. |
-| options.records      | <code>Array</code>                         | A list of records to push to a Kinesis stream.                                                                                                                                                                                                              |
-| options.records.data | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                                 |
-| [options.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                                    |
+| Param               | Type                                       | Description                                                                                                                                                                                                                                                       |
+| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| params              | <code>Object</code>                        | The putRecords parameters. In addition to the params described here, uses [`AWS.Kinesis.putRecords` parameters](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Kinesis.html#putRecords-property) from the `AWS.Kinesis.putRecords` method in camel case. |
+| params.records      | <code>Array</code>                         | A list of records to push to a Kinesis stream.                                                                                                                                                                                                                    |
+| params.records.data | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                                                                                                                                                                                                                       |
+| [params.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation.                                                                                                                                                                                          |
 
 ## License
 
