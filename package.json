@@ -52,6 +52,7 @@
     "eslint": "^5.16.0",
     "eslint-config-lifion": "^1.1.0",
     "eslint-plugin-sort-destructure-keys": "^1.3.0",
+    "eslint-plugin-sort-keys-fix": "^1.0.1",
     "husky": "^2.2.0",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
@@ -68,13 +69,20 @@
   "eslintConfig": {
     "extends": "lifion",
     "plugins": [
-      "sort-destructure-keys"
+      "sort-destructure-keys",
+      "sort-keys-fix"
     ],
     "rules": {
       "jsdoc/require-returns-description": "off",
       "no-await-in-loop": "off",
       "sort-destructure-keys/sort-destructure-keys": "error",
-      "sort-keys": "error"
+      "sort-keys-fix/sort-keys-fix": [
+        "error",
+        "asc",
+        {
+          "natural": true
+        }
+      ]
     }
   },
   "husky": {
