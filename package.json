@@ -50,9 +50,7 @@
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.1.0",
-    "eslint-plugin-sort-destructure-keys": "^1.3.0",
-    "eslint-plugin-sort-keys-fix": "^1.0.1",
+    "eslint-config-lifion": "^1.2.1",
     "husky": "^2.3.0",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
@@ -67,23 +65,7 @@
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion",
-    "plugins": [
-      "sort-destructure-keys",
-      "sort-keys-fix"
-    ],
-    "rules": {
-      "jsdoc/require-returns-description": "off",
-      "no-await-in-loop": "off",
-      "sort-destructure-keys/sort-destructure-keys": "error",
-      "sort-keys-fix/sort-keys-fix": [
-        "error",
-        "asc",
-        {
-          "natural": true
-        }
-      ]
-    }
+    "extends": "lifion"
   },
   "husky": {
     "hooks": {
