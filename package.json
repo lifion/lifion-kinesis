@@ -65,7 +65,19 @@
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion"
+    "extends": "lifion",
+    "overrides": [
+      {
+        "files": [
+          "*.test.js",
+          "**/__mocks__/*.js"
+        ],
+        "rules": {
+          "global-require": "off",
+          "jsdoc/require-jsdoc": "off"
+        }
+      }
+    ]
   },
   "husky": {
     "hooks": {
