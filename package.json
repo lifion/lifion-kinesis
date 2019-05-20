@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.458.0",
+    "aws-sdk": "^2.459.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -50,7 +50,7 @@
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.2.1",
+    "eslint-config-lifion": "^1.2.2",
     "husky": "^2.3.0",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
@@ -65,19 +65,7 @@
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion",
-    "overrides": [
-      {
-        "files": [
-          "*.test.js",
-          "**/__mocks__/*.js"
-        ],
-        "rules": {
-          "global-require": "off",
-          "jsdoc/require-jsdoc": "off"
-        }
-      }
-    ]
+    "extends": "lifion"
   },
   "husky": {
     "hooks": {
