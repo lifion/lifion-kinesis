@@ -65,16 +65,7 @@
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion",
-    "plugins": [
-      "sort-destructure-keys"
-    ],
-    "rules": {
-      "jsdoc/require-returns-description": "off",
-      "no-await-in-loop": "off",
-      "sort-destructure-keys/sort-destructure-keys": "error",
-      "sort-keys": "error"
-    }
+    "extends": "lifion"
   },
   "husky": {
     "hooks": {
