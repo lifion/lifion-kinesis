@@ -80,10 +80,10 @@
     "coverageDirectory": "../reports/coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 0,
-        "branches": 0,
-        "functions": 0,
-        "lines": 0
+        "statements": 53.26,
+        "branches": 52.28,
+        "functions": 43.5,
+        "lines": 53.3
       }
     },
     "reporters": [
