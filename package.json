@@ -58,7 +58,7 @@
     "lint-staged": "^8.1.7",
     "npm-watch": "^0.6.0",
     "prettier": "^1.17.1",
-    "semver": "^6.0.0"
+    "semver": "^6.1.0"
   },
   "auto-changelog": {
     "commitLimit": false,
@@ -80,10 +80,10 @@
     "coverageDirectory": "../reports/coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 52.38,
-        "branches": 50.7,
-        "functions": 43.28,
-        "lines": 52.42
+        "statements": 50,
+        "branches": 50,
+        "functions": 40,
+        "lines": 50
       }
     },
     "reporters": [
