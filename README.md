@@ -59,10 +59,14 @@ pipeline([
 - [lifion-kinesis](#module_lifion-kinesis)
   - [Kinesis](#exp_module_lifion-kinesis--Kinesis) ⇐ [<code>PassThrough</code>](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_class_stream_passthrough) ⏏
     - [new Kinesis(options)](#new_module_lifion-kinesis--Kinesis_new)
-    - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
-    - [.stopConsumer()](#module_lifion-kinesis--Kinesis+stopConsumer)
-    - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
-    - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
+    - _instance_
+      - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
+      - [.stopConsumer()](#module_lifion-kinesis--Kinesis+stopConsumer)
+      - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
+      - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
+      - [.getStats()](#module_lifion-kinesis--Kinesis+getStats) ⇒ <code>Object</code>
+    - _static_
+      - [.getStats()](#module_lifion-kinesis--Kinesis.getStats) ⇒ <code>Object</code>
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -131,7 +135,7 @@ Writes a single data record into a stream.
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
 **Fulfil**: <code>Object</code> - The de-serialized data returned from the request.  
-**Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
+**Reject**: <code>Error</code> - On any unexpected error while writing to the stream.
 
 | Param                              | Type                | Description                                                                                                                                                                                                                                                 |
 | ---------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -146,18 +150,37 @@ Writes a single data record into a stream.
 
 #### kinesis.putRecords(params) ⇒ <code>Promise</code>
 
-Batch puts multiple records to a stream.
+Writes multiple data records into a stream in a single call.
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
-**Fulfil**: If records are successfully pushed to stream.  
-**Reject**: <code>Error</code> - On any unexpected error while pushing to stream.
+**Fulfil**: <code>Object</code> - The de-serialized data returned from the request.  
+**Reject**: <code>Error</code> - On any unexpected error while writing to the stream.
 
-| Param               | Type                                       | Description                                                              |
-| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
-| params              | <code>Object</code>                        | The parameters.                                                          |
-| params.records      | <code>Array</code>                         | A list of records to push to a Kinesis stream.                           |
-| params.records.data | <code>Object</code> \| <code>string</code> | The data to be used as the Kinesis message.                              |
-| [params.streamName] | <code>string</code>                        | If provided, overrides the stream name provided on client instantiation. |
+| Param                              | Type                              | Description                                                                                                                               |
+| ---------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| params                             | <code>Object</code>               | The parameters.                                                                                                                           |
+| params.records                     | <code>Array.&lt;Object&gt;</code> | The records associated with the request.                                                                                                  |
+| params.records[].data              | <code>\*</code>                   | The record data.                                                                                                                          |
+| [params.records[].explicitHashKey] | <code>string</code>               | The hash value used to explicitly determine the shard the data record is assigned to by overriding the partition key hash.                |
+| [params.records[].partitionKey]    | <code>string</code>               | Determines which shard in the stream the data record is assigned to. If omitted, it will be calculated based on a SHA-1 hash of the data. |
+| [params.streamName]                | <code>string</code>               | If provided, the record will be put into the specified stream instead of the stream name provided during the consumer instantiation.      |
+
+<a name="module_lifion-kinesis--Kinesis+getStats"></a>
+
+#### kinesis.getStats() ⇒ <code>Object</code>
+
+Returns statistics for the instance of the client.
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Returns**: <code>Object</code> - An object with the statistics.  
+<a name="module_lifion-kinesis--Kinesis.getStats"></a>
+
+#### Kinesis.getStats() ⇒ <code>Object</code>
+
+Returns the aggregated statistics of all the instances of the client.
+
+**Kind**: static method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Returns**: <code>Object</code> - An object with the statistics.
 
 ## License
 
