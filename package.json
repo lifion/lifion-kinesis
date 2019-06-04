@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.466.0",
+    "aws-sdk": "^2.468.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -83,10 +83,10 @@
     "coverageDirectory": "../reports/coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 90,
-        "branches": 90,
-        "functions": 90,
-        "lines": 90
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
       }
     },
     "reporters": [
