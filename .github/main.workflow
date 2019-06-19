@@ -4,18 +4,19 @@ workflow "Build, lint and test" {
 }
 
 action "Build" {
-  uses = "actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680"
-  runs = "install"
+  uses = "actions/npm@master"
+  args = "install"
 }
 
 action "Lint" {
-  uses = "actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680"
-  runs = "run eslint"
+  uses = "actions/npm@master"
   needs = ["Build"]
+  args = "run eslint"
 }
 
 action "Test" {
-  uses = "actions/npm@59b64a598378f31e49cb76f27d6f3312b582f680"
-  runs = "test"
+  uses = "actions/npm@master"
   needs = ["Lint"]
+  args = "test"
+  secrets = ["CODECOV_TOKEN"]
 }
