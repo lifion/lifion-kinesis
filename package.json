@@ -26,7 +26,7 @@
     "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json",
-    "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
+    "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
     "prepare": "check-engines",
     "test": "jest --ci --runInBand && codecov",
     "test-watch": "jest --watchAll --coverageReporters=html",
