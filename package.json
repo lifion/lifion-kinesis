@@ -52,7 +52,7 @@
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
     "eslint-config-lifion": "^1.2.3",
-    "husky": "^2.4.1",
+    "husky": "^2.5.0",
     "jest": "^24.8.0",
     "jsdoc-to-markdown": "^5.0.0",
     "lint-staged": "^8.2.1",
