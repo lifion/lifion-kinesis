@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.486.0",
+    "aws-sdk": "^2.490.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -46,26 +46,48 @@
     "short-uuid": "^3.1.1"
   },
   "devDependencies": {
-    "auto-changelog": "^1.13.0",
+    "auto-changelog": "^1.14.1",
     "chalk": "^2.4.2",
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
-    "eslint": "^6.0.1",
+    "eslint": "^5.16.0",
     "eslint-config-lifion": "^1.2.4",
     "husky": "^3.0.0",
     "jest": "^24.8.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "lint-staged": "^9.0.0",
+    "lint-staged": "^9.1.0",
     "npm-watch": "^0.6.0",
     "prettier": "^1.18.2",
-    "semver": "^6.1.3"
+    "semver": "^6.2.0"
   },
   "auto-changelog": {
     "commitLimit": false,
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion"
+    "extends": "lifion",
+    "overrides": [
+      {
+        "files": [
+          "lib/records.js",
+          "lib/fan-out-consumer.js"
+        ],
+        "rules": {
+          "no-underscore-dangle": [
+            "warn",
+            {
+              "allow": [
+                "_transform",
+                "_write"
+              ],
+              "allowAfterSuper": false,
+              "allowAfterThis": false,
+              "enforceInMethodNames": true
+            }
+          ]
+        }
+      }
+    ]
   },
   "husky": {
     "hooks": {
