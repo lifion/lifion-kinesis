@@ -1,6 +1,6 @@
 {
   "name": "lifion-kinesis",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Lifion client for Amazon Kinesis Data streams",
   "keywords": [
     "adp",
@@ -15,7 +15,11 @@
   ],
   "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
   "maintainers": [
+    "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
     "Mackenzie Turner <turner.mackenzie.m@gmail.com>"
+  ],
+  "contributors": [
+    "Simon Gellis <Simon.Gellis@ADP.com>"
   ],
   "license": "MIT",
   "main": "lib/index.js",
@@ -26,17 +30,15 @@
     "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json",
-    "format": "prettier --write '**/*.{md,js,json}' '!reports/**/*.{js,json}'",
-    "jest": "JEST_JUNIT_OUTPUT=./reports/junit/js-test-results.xml jest",
-    "lint": "eslint . --ext .js,.json --format junit -o ./reports/junit/js-lint-results.xml",
+    "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
     "prepare": "check-engines",
-    "test": "npm run jest -- --ci --runInBand && codecov",
-    "test-watch": "npm run jest -- --watchAll --coverageReporters=html",
+    "test": "jest --ci --runInBand && codecov",
+    "test-watch": "jest --watchAll --coverageReporters=html",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.468.0",
+    "aws-sdk": "^2.490.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -48,27 +50,48 @@
     "short-uuid": "^3.1.1"
   },
   "devDependencies": {
-    "auto-changelog": "^1.13.0",
+    "auto-changelog": "^1.14.1",
     "chalk": "^2.4.2",
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.2.2",
-    "husky": "^2.4.0",
+    "eslint-config-lifion": "^1.2.4",
+    "husky": "^3.0.0",
     "jest": "^24.8.0",
-    "jest-junit": "^6.4.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "lint-staged": "^8.1.7",
+    "lint-staged": "^9.1.0",
     "npm-watch": "^0.6.0",
-    "prettier": "^1.17.1",
-    "semver": "^6.1.1"
+    "prettier": "^1.18.2",
+    "semver": "^6.2.0"
   },
   "auto-changelog": {
     "commitLimit": false,
     "template": "./templates/CHANGELOG.hbs"
   },
   "eslintConfig": {
-    "extends": "lifion"
+    "extends": "lifion",
+    "overrides": [
+      {
+        "files": [
+          "lib/records.js",
+          "lib/fan-out-consumer.js"
+        ],
+        "rules": {
+          "no-underscore-dangle": [
+            "warn",
+            {
+              "allow": [
+                "_transform",
+                "_write"
+              ],
+              "allowAfterSuper": false,
+              "allowAfterThis": false,
+              "enforceInMethodNames": true
+            }
+          ]
+        }
+      }
+    ]
   },
   "husky": {
     "hooks": {
@@ -80,7 +103,7 @@
     "collectCoverageFrom": [
       "**/*.js"
     ],
-    "coverageDirectory": "../reports/coverage",
+    "coverageDirectory": "../coverage",
     "coverageThreshold": {
       "global": {
         "statements": 100,
@@ -89,10 +112,6 @@
         "lines": 100
       }
     },
-    "reporters": [
-      "default",
-      "jest-junit"
-    ],
     "rootDir": "lib",
     "testEnvironment": "node"
   },
