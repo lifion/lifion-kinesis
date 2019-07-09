@@ -51,7 +51,7 @@
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^6.0.1",
-    "eslint-config-lifion": "^1.2.3",
+    "eslint-config-lifion": "^1.2.4",
     "husky": "^3.0.0",
     "jest": "^24.8.0",
     "jsdoc-to-markdown": "^5.0.0",
