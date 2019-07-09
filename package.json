@@ -14,8 +14,11 @@
     "lifion"
   ],
   "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
+  "maintainers": [
+    "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
+    "Mackenzie Turner <turner.mackenzie.m@gmail.com>"
+  ],
   "contributors": [
-    "Mackenzie Turner <turner.mackenzie.m@gmail.com>",
     "Simon Gellis <Simon.Gellis@ADP.com>"
   ],
   "license": "MIT",
