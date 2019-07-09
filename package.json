@@ -14,8 +14,9 @@
     "lifion"
   ],
   "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
-  "maintainers": [
-    "Mackenzie Turner <turner.mackenzie.m@gmail.com>"
+  "contributors": [
+    "Mackenzie Turner <turner.mackenzie.m@gmail.com>",
+    "Simon Gellis <Simon.Gellis@ADP.com>"
   ],
   "license": "MIT",
   "main": "lib/index.js",
