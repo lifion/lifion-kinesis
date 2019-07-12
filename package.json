@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.490.0",
+    "aws-sdk": "^2.492.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -55,11 +55,11 @@
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.2.4",
+    "eslint-config-lifion": "^1.2.5",
     "husky": "^3.0.0",
     "jest": "^24.8.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "lint-staged": "^9.1.0",
+    "lint-staged": "^9.2.0",
     "npm-watch": "^0.6.0",
     "prettier": "^1.18.2",
     "semver": "^6.2.0"
