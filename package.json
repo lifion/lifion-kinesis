@@ -1,6 +1,6 @@
 {
   "name": "lifion-kinesis",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Lifion client for Amazon Kinesis Data streams",
   "keywords": [
     "adp",
@@ -15,6 +15,7 @@
   ],
   "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
   "maintainers": [
+    "Chen Doron <Chen.Doron@ADP.com>",
     "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
     "Mackenzie Turner <turner.mackenzie.m@gmail.com>"
   ],
@@ -38,12 +39,12 @@
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.490.0",
+    "aws-sdk": "^2.503.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
     "is-retry-allowed": "^1.1.0",
-    "lifion-aws-event-stream": "^1.0.4",
+    "lifion-aws-event-stream": "^1.0.5",
     "lru-cache": "^5.1.1",
     "lzutf8": "^0.5.5",
     "project-name": "^1.0.0",
@@ -55,14 +56,14 @@
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
     "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.2.4",
-    "husky": "^3.0.0",
+    "eslint-config-lifion": "^1.2.6",
+    "husky": "^3.0.2",
     "jest": "^24.8.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "lint-staged": "^9.1.0",
+    "lint-staged": "^9.2.1",
     "npm-watch": "^0.6.0",
     "prettier": "^1.18.2",
-    "semver": "^6.2.0"
+    "semver": "^6.3.0"
   },
   "auto-changelog": {
     "commitLimit": false,
