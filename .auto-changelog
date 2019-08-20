@@ -1,0 +1,4 @@
+{
+  "commitLimit": false,
+  "template": "./templates/CHANGELOG.hbs"
+}

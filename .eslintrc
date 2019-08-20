@@ -1,0 +1,25 @@
+{
+  "extends": "lifion",
+  "overrides": [
+    {
+      "files": ["lib/records.js", "lib/fan-out-consumer.js"],
+      "rules": {
+        "no-underscore-dangle": [
+          "warn",
+          {
+            "allow": ["_transform", "_write"],
+            "allowAfterSuper": false,
+            "allowAfterThis": false,
+            "enforceInMethodNames": true
+          }
+        ]
+      }
+    },
+    {
+      "files": ["lib/fan-out-consumer.js"],
+      "rules": {
+        "max-classes-per-file": ["error", 3]
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "collectCoverage": true,
+  "collectCoverageFrom": ["**/*.js"],
+  "coverageDirectory": "../coverage",
+  "coverageThreshold": {
+    "global": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    }
+  },
+  "rootDir": "lib",
+  "testEnvironment": "node"
+}

@@ -1,0 +1,28 @@
+name: Pull Request Check
+on:
+  pull_request:
+    branches:
+      - develop
+jobs:
+  test:
+    name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: [8, 10, 12]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          version: ${{ matrix.node_version }}
+      - name: Install
+        run: npm ci
+      - name: Run linter
+        run: npm run eslint
+      - name: Run tests
+        run: npm test
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
