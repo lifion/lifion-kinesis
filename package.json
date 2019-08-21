@@ -17,12 +17,22 @@
   "maintainers": [
     "Chen Doron <Chen.Doron@ADP.com>",
     "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
-    "Mackenzie Turner <turner.mackenzie.m@gmail.com>"
+    "Jenny Eckstein <Jenny.Eckstein@ADP.com>",
+    "Mackenzie Turner <turner.mackenzie.m@gmail.com>",
+    "Zaid Masud <Zaid.Masud@ADP.com>"
   ],
   "contributors": [
     "Simon Gellis <Simon.Gellis@ADP.com>"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://stash.es.ad.adp.com/src/core/lifion-kinesis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lifion/lifion-kinesis/issues"
+  },
+  "homepage": "https://github.com/lifion/lifion-kinesis#readme",
   "main": "lib/index.js",
   "engines": {
     "node": ">=10.0.0"
@@ -32,14 +42,15 @@
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json",
     "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
+    "jest": "jest -c ./.jest.json",
+    "jest-watch": "npm run jest -- --watchAll --coverageReporters=html",
     "prepare": "check-engines",
-    "test": "jest --ci --runInBand && codecov",
-    "test-watch": "jest --watchAll --coverageReporters=html",
+    "test": "npm run jest -- --ci --runInBand && codecov",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
     "async-retry": "^1.2.3",
-    "aws-sdk": "^2.505.0",
+    "aws-sdk": "^2.514.0",
     "aws4": "^1.8.0",
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
@@ -51,104 +62,25 @@
     "short-uuid": "^3.1.1"
   },
   "devDependencies": {
-    "auto-changelog": "^1.14.1",
+    "auto-changelog": "^1.15.0",
     "chalk": "^2.4.2",
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
-    "eslint": "^5.16.0",
-    "eslint-config-lifion": "^1.2.6",
-    "husky": "^3.0.2",
-    "jest": "^24.8.0",
+    "eslint": "^6.2.1",
+    "eslint-config-lifion": "^1.3.0",
+    "husky": "^3.0.4",
+    "jest": "^24.9.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "lint-staged": "^9.2.1",
+    "lint-staged": "^9.2.3",
     "npm-watch": "^0.6.0",
     "prettier": "^1.18.2",
     "semver": "^6.3.0"
   },
-  "auto-changelog": {
-    "commitLimit": false,
-    "template": "./templates/CHANGELOG.hbs"
-  },
-  "eslintConfig": {
-    "extends": "lifion",
-    "overrides": [
-      {
-        "files": [
-          "lib/records.js",
-          "lib/fan-out-consumer.js"
-        ],
-        "rules": {
-          "no-underscore-dangle": [
-            "warn",
-            {
-              "allow": [
-                "_transform",
-                "_write"
-              ],
-              "allowAfterSuper": false,
-              "allowAfterThis": false,
-              "enforceInMethodNames": true
-            }
-          ]
-        }
-      }
-    ]
-  },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build-docs && lint-staged"
+      "pre-commit": "npm run build-docs && lint-staged",
+      "pre-push": "npm run eslint && npm run jest"
     }
-  },
-  "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.js"
-    ],
-    "coverageDirectory": "../coverage",
-    "coverageThreshold": {
-      "global": {
-        "statements": 100,
-        "branches": 100,
-        "functions": 100,
-        "lines": 100
-      }
-    },
-    "rootDir": "lib",
-    "testEnvironment": "node"
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ],
-    "*.{json,md}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true
-  },
-  "renovate": {
-    "assignees": [
-      "eaviles",
-      "kenzable"
-    ],
-    "automerge": true,
-    "branchPrefix": "feature/renovate-",
-    "engines": {
-      "node": {
-        "enabled": false
-      }
-    },
-    "extends": [
-      "config:base"
-    ],
-    "major": {
-      "automerge": false
-    },
-    "rangeStrategy": "bump"
   },
   "watch": {
     "build-docs": {
@@ -156,5 +88,10 @@
         "lib"
       ]
     }
+  },
+  "@lifion/core-commons": {
+    "template": "public",
+    "updated": "2019-08-20T20:54:06.146Z",
+    "version": "2.2.0"
   }
 }
