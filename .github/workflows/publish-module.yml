@@ -15,7 +15,9 @@ jobs:
         with:
           version: 10
       - name: Install
-        run: DISABLE_OPENCOLLECTIVE=true npm ci --loglevel=error
+        run: npm ci --loglevel=error
+        env:
+          DISABLE_OPENCOLLECTIVE: true
       - name: Run linter
         run: npm run eslint
       - name: Run tests
@@ -35,7 +37,9 @@ jobs:
           version: 10
           registry-url: 'https://registry.npmjs.org'
       - name: Install
-        run: DISABLE_OPENCOLLECTIVE=true npm ci --loglevel=error
+        run: npm ci --loglevel=error
+        env:
+          DISABLE_OPENCOLLECTIVE: true
       - name: Publish
         run: npm publish
         env:
