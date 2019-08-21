@@ -1,0 +1,20 @@
+{
+  "assignees": [
+    "eaviles",
+    "kenzable"
+  ],
+  "automerge": true,
+  "branchPrefix": "feature/renovate-",
+  "engines": {
+    "node": {
+      "enabled": false
+    }
+  },
+  "extends": [
+    "config:base"
+  ],
+  "major": {
+    "automerge": false
+  },
+  "rangeStrategy": "bump"
+}
