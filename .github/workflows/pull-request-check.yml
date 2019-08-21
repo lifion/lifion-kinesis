@@ -19,7 +19,7 @@ jobs:
         with:
           version: ${{ matrix.node_version }}
       - name: Install
-        run: npm ci
+        run: DISABLE_OPENCOLLECTIVE=true npm ci --loglevel=error
       - name: Run linter
         run: npm run eslint
       - name: Run tests
