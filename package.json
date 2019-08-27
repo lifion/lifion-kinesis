@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://stash.es.ad.adp.com/src/core/lifion-kinesis.git"
+    "url": "https://github.com/lifion/lifion-kinesis.git"
   },
   "bugs": {
     "url": "https://github.com/lifion/lifion-kinesis/issues"
@@ -90,7 +90,7 @@
   },
   "@lifion/core-commons": {
     "template": "public",
-    "updated": "2019-08-26T23:26:21.918Z",
+    "updated": "2019-08-27T00:07:22.435Z",
     "version": "2.3.3"
   }
 }
