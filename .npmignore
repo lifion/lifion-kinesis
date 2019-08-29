@@ -1,6 +1,5 @@
 *.md
 *.test.js
-.*
 /.*
 /coverage
 /templates

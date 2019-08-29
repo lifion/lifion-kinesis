@@ -1,5 +1,8 @@
 name: Pull Request Check
 on:
+  push:
+    branches:
+      - develop
   pull_request:
     branches:
       - develop
@@ -28,3 +31,4 @@ jobs:
         run: npm test
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          CI: true
