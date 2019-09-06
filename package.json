@@ -61,7 +61,7 @@
     "short-uuid": "^3.1.1"
   },
   "devDependencies": {
-    "auto-changelog": "^1.16.0",
+    "auto-changelog": "^1.16.1",
     "chalk": "^2.4.2",
     "check-engines": "^1.5.0",
     "codecov": "^3.5.0",
