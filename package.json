@@ -54,7 +54,7 @@
     "fast-deep-equal": "^2.0.1",
     "got": "^9.6.0",
     "is-retry-allowed": "^1.2.0",
-    "lifion-aws-event-stream": "^1.0.5",
+    "lifion-aws-event-stream": "^1.0.6",
     "lru-cache": "^5.1.1",
     "lzutf8": "^0.5.5",
     "project-name": "^1.0.0",
