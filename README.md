@@ -63,6 +63,7 @@ pipeline([
       - [.startConsumer()](#module_lifion-kinesis--Kinesis+startConsumer) ⇒ <code>Promise</code>
       - [.stopConsumer()](#module_lifion-kinesis--Kinesis+stopConsumer)
       - [.putRecord(params)](#module_lifion-kinesis--Kinesis+putRecord) ⇒ <code>Promise</code>
+      - [.listShards(params)](#module_lifion-kinesis--Kinesis+listShards) ⇒ <code>Promise</code>
       - [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
       - [.getStats()](#module_lifion-kinesis--Kinesis+getStats) ⇒ <code>object</code>
     - _static_
@@ -151,6 +152,21 @@ Writes a single data record into a stream.
 | [params.partitionKey]              | <code>string</code> | Determines which shard in the stream the data record is assigned to. If omitted, it will be calculated based on a SHA-1 hash of the data.                                                                                                                   |
 | [params.sequenceNumberForOrdering] | <code>string</code> | Set this to the sequence number obtained from the last put record operation to guarantee strictly increasing sequence numbers, for puts from the same client and to the same partition key. If omitted, records are coarsely ordered based on arrival time. |
 | [params.streamName]                | <code>string</code> | If provided, the record will be put into the specified stream instead of the stream name provided during the consumer instantiation.                                                                                                                        |
+
+<a name="module_lifion-kinesis--Kinesis+listShards"></a>
+
+#### kinesis.listShards(params) ⇒ <code>Promise</code>
+
+List the shards of a stream.
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Fulfil**: <code>Object</code> - The de-serialized data returned from the request.  
+**Reject**: <code>Error</code> - On any unexpected error while writing to the stream.
+
+| Param               | Type                | Description                                                                                                                                |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| params              | <code>object</code> | The parameters.                                                                                                                            |
+| [params.streamName] | <code>string</code> | If provided, the method will list the shards of the specific stream instead of the stream name provided during the consumer instantiation. |
 
 <a name="module_lifion-kinesis--Kinesis+putRecords"></a>
 
