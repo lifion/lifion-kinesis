@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          version: ${{ matrix.node_version }}
+          node_version: ${{ matrix.node_version }}.x
       - name: Install
         run: npm ci --loglevel=error
         env:
