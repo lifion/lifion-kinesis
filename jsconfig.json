@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": ["es2016", "es2017.object", "es2017.string"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "es6"
+  },
+  "exclude": ["**/*.test.js", "**/__mocks__", "node_modules"]
+}
