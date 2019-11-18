@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node_version: [10, 12]
+        node_version: [10, 12, 13]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
       - name: Clone repository
@@ -28,7 +28,10 @@ jobs:
       - name: Run linter
         run: npm run eslint
       - name: Run tests
-        run: npm test
+        run: npm test -- --ci --runInBand
+        env:
+          CI: true
+      - name: Report coverage
+        run: npx codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-          CI: true
