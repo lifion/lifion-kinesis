@@ -50,7 +50,7 @@
     "async-retry": "^1.2.3",
     "aws-sdk": "^2.574.0",
     "aws4": "^1.8.0",
-    "fast-deep-equal": "^2.0.1",
+    "fast-deep-equal": "^3.1.1",
     "got": "^9.6.0",
     "is-retry-allowed": "^1.2.0",
     "lifion-aws-event-stream": "^1.0.7",
