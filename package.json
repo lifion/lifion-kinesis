@@ -73,7 +73,7 @@
     "lint-staged": "^10.0.6",
     "npm-watch": "^0.6.0",
     "prettier": "^1.19.1",
-    "semver": "^7.1.1"
+    "semver": "^7.1.2"
   },
   "husky": {
     "hooks": {
