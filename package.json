@@ -60,7 +60,7 @@
     "short-uuid": "^3.1.1"
   },
   "devDependencies": {
-    "auto-changelog": "^1.16.4",
+    "auto-changelog": "^2.0.0",
     "chalk": "^3.0.0",
     "chance": "^1.1.4",
     "check-engines": "^1.5.0",
