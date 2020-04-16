@@ -21,7 +21,7 @@ const kinesis = new Kinesis({
   streamName: 'sample-stream'
   /* other options from AWS.Kinesis */
 });
-kinesis.on('data', data => {
+kinesis.on('data', (data) => {
   console.log('Incoming data:', data);
 });
 kinesis.startConsumer();
