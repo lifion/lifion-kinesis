@@ -68,7 +68,7 @@
     "eslint": "^7.0.0",
     "eslint-config-lifion": "^1.4.0",
     "husky": "^4.2.5",
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "jsdoc-to-markdown": "^5.0.3",
     "lint-staged": "^10.2.11",
     "npm-watch": "^0.6.0",
