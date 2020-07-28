@@ -54,7 +54,7 @@
     "got": "^11.1.4",
     "is-retry-allowed": "^1.2.0",
     "lifion-aws-event-stream": "^1.0.7",
-    "lru-cache": "^5.1.1",
+    "lru-cache": "^6.0.0",
     "lzutf8": "^0.5.5",
     "project-name": "^1.0.0",
     "short-uuid": "^3.1.1"
