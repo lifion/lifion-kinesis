@@ -40,7 +40,7 @@
   "scripts": {
     "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",
     "build-docs-watch": "npm-watch build-docs",
-    "eslint": "eslint . --ext .js,.json --ignore-pattern='!.*.*' --fix",
+    "eslint": "eslint . --ext .js,.json --ignore-pattern='!.*.*'",
     "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
     "prepare": "check-engines",
     "test": "jest -c ./.jest.json",
