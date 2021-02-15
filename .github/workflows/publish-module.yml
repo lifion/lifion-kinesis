@@ -2,16 +2,19 @@ name: Publish Module
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   install-and-check:
     name: Install & Check
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
+        with:
+          check-latest: true
+          node-version: '12'
       - name: Install
         run: npm ci --loglevel=error
         env:
@@ -28,10 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
+          check-latest: true
+          node-version: '12'
           registry-url: 'https://registry.npmjs.org'
       - name: Install
         run: npm ci --loglevel=error
