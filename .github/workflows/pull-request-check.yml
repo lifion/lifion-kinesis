@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [12, 14, 15]
+        node-version: [10, 12, 14, 15]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Clone repository
@@ -36,3 +36,4 @@ jobs:
         run: npx codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          
