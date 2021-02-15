@@ -36,4 +36,3 @@ jobs:
         run: npx codecov
         env:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-          
