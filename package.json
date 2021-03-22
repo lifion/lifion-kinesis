@@ -1,6 +1,6 @@
 {
   "name": "lifion-kinesis",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Lifion client for Amazon Kinesis Data streams",
   "keywords": [
     "adp",
