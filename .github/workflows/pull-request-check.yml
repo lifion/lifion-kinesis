@@ -7,20 +7,21 @@ on:
     branches:
       - develop
 jobs:
-  test:
-    name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
+  check:
+    name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node_version: [10, 12, 13]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node-version: [10, 12, 14, 15]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node_version: ${{ matrix.node_version }}.x
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
       - name: Install
         run: npm ci --loglevel=error
         env:
