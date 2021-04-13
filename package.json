@@ -43,7 +43,10 @@
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json --ignore-pattern='!.*.*'",
     "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
-    "prepare": "check-engines",
+    "prepare": "husky install",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable",
     "test": "jest -c ./.jest.json",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
@@ -74,14 +77,9 @@
     "jsdoc-to-markdown": "^7.0.0",
     "lint-staged": "^10.5.4",
     "npm-watch": "^0.9.0",
+    "pinst": "^2.1.6",
     "prettier": "^2.2.1",
     "semver": "^7.3.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build-docs && lint-staged",
-      "pre-push": "npm run eslint && npm test"
-    }
   },
   "watch": {
     "build-docs": {
