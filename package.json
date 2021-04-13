@@ -15,14 +15,15 @@
   ],
   "author": "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
   "maintainers": [
-    "Chen Doron <Chen.Doron@ADP.com>",
+    "Bryan Oemler <Bryan.Oemler@ADP.com>",
     "Edgardo Avilés <Edgardo.Aviles@ADP.com>",
-    "Jenny Eckstein <Jenny.Eckstein@ADP.com>",
-    "Mackenzie Turner <turner.mackenzie.m@gmail.com>",
-    "Zaid Masud <Zaid.Masud@ADP.com>"
+    "Jenny Eckstein <Jenny.Eckstein@ADP.com>"
   ],
   "contributors": [
-    "Simon Gellis <Simon.Gellis@ADP.com>"
+    "Chen Doron <Chen.Doron@ADP.com>",
+    "Simon Gellis <Simon.Gellis@ADP.com>",
+    "Mackenzie Turner <turner.mackenzie.m@gmail.com>",
+    "Zaid Masud <Zaid.Masud@ADP.com>"
   ],
   "license": "MIT",
   "repository": {
@@ -42,7 +43,10 @@
     "build-docs-watch": "npm-watch build-docs",
     "eslint": "eslint . --ext .js,.json --ignore-pattern='!.*.*'",
     "format": "prettier --write '**/*.{md,js,json}' '!coverage/**/*.{js,json}'",
-    "prepare": "check-engines",
+    "prepare": "husky install",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable",
     "test": "jest -c ./.jest.json",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
@@ -68,19 +72,14 @@
     "codecov": "^3.8.1",
     "eslint": "^7.22.0",
     "eslint-config-lifion": "^1.4.0",
-    "husky": "^4.3.8",
+    "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jsdoc-to-markdown": "^7.0.0",
     "lint-staged": "^10.5.4",
     "npm-watch": "^0.9.0",
+    "pinst": "^2.1.6",
     "prettier": "^2.2.1",
     "semver": "^7.3.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build-docs && lint-staged",
-      "pre-push": "npm run eslint && npm test"
-    }
   },
   "watch": {
     "build-docs": {
