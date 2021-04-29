@@ -120,6 +120,7 @@ Initializes a new instance of the Kinesis client.
 | [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`. This option is        useful when consumers want to make sure the records are fully processed before        receiving more (only applicable when `useEnhancedFanOut` is set to `false`) |
 | [options.useS3ForLargeItems] | <code>boolean</code> | <code>false</code> | Whether to automatically use an S3        bucket to store large items or not. |
 | [options.leaseAcquisitionInterval] | <code>number</code> | <code>20000</code> | The interval in milliseconds for how often to        attempt lease acquisitions. |
+| [options.leaseAcquisitionRecoveryInterval] | <code>number</code> | <code>5000</code> | The interval in milliseconds for how often        to re-attempt lease acquisitions when an error is returned from aws. |
 
 <a name="module_lifion-kinesis--Kinesis+startConsumer"></a>
 
