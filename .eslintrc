@@ -18,7 +18,7 @@
     {
       "files": ["lib/fan-out-consumer.js"],
       "rules": {
-        "max-classes-per-file": ["error", 3]
+        "max-classes-per-file": ["error", 4]
       }
     }
   ]
