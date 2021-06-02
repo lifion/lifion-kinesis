@@ -1,6 +1,16 @@
 {
   "extends": "lifion",
+  "rules": {
+    "jest/no-conditional-expect": "off",
+    "radar/no-identical-functions": "off",
+    "unicorn/no-array-callback-reference": "off",
+    "unicorn/no-array-for-each": "off"
+  },
   "overrides": [
+    {
+      "files": ["lib/records.js"],
+      "rules": { "promise/catch-or-return": "off" }
+    },
     {
       "files": ["lib/records.js", "lib/fan-out-consumer.js"],
       "rules": {
