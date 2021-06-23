@@ -97,6 +97,7 @@ Initializes a new instance of the Kinesis client.
 | [options.encryption] | <code>Object</code> |  | The encryption options to enforce in the stream. |
 | [options.encryption.type] | <code>string</code> |  | The encryption type to use. |
 | [options.encryption.keyId] | <code>string</code> |  | The GUID for the customer-managed AWS KMS key        to use for encryption. This value can be a globally unique identifier, a fully        specified ARN to either an alias or a key, or an alias name prefixed by "alias/". |
+| [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start         fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
 | [options.leaseAcquisitionInterval] | <code>number</code> | <code>20000</code> | The interval in milliseconds for how often to        attempt lease acquisitions. |
 | [options.leaseAcquisitionRecoveryInterval] | <code>number</code> | <code>5000</code> | The interval in milliseconds for how often        to re-attempt lease acquisitions when an error is returned from aws. |
 | [options.limit] | <code>number</code> | <code>10000</code> | The limit of records per get records call (only        applicable with `useEnhancedFanOut` is set to `false`) |
