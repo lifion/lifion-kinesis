@@ -75,7 +75,7 @@
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "jsdoc-to-markdown": "^7.1.1",
-    "lint-staged": "^12.3.5",
+    "lint-staged": "^13.0.3",
     "npm-watch": "^0.11.0",
     "pinst": "^2.1.6",
     "prettier": "^2.5.1",
