@@ -77,6 +77,7 @@ kinesis.startConsumer();
             * [.getStats()](#module_lifion-kinesis--Kinesis+getStats) ⇒ <code>Object</code>
         * _static_
             * [.getStats()](#module_lifion-kinesis--Kinesis.getStats) ⇒ <code>Object</code>
+            * [.clearLeaseManagerCache(consumerGroup)](#module_lifion-kinesis--Kinesis.clearLeaseManagerCache)
 
 <a name="exp_module_lifion-kinesis--Kinesis"></a>
 
@@ -127,6 +128,7 @@ Initializes a new instance of the Kinesis client.
 | [options.tags] | <code>Object</code> |  | If provided, the client will ensure that the stream is tagged        with these tags upon connection. If the stream is already tagged, the existing tags        will be merged with the provided ones before updating them. |
 | [options.useAutoCheckpoints] | <code>boolean</code> | <code>true</code> | Set to `true` to make the client        automatically store shard checkpoints using the sequence number of the most-recently        received record. If set to `false` consumers can use the `setCheckpoint()` function to        store any sequence number as the checkpoint for the shard. |
 | [options.useAutoShardAssignment] | <code>boolean</code> | <code>true</code> | Set to `true` to automatically assign        the stream shards to the active consumers in the same group (so only one client reads      from one shard at the same time). Set to `false` to make the client read from all shards. |
+| [options.useCachedAPIResponses] | <code>boolean</code> | <code>false</code> | Set to `false` to not reuse AWS API calls responses |
 | [options.useEnhancedFanOut] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client use        enhanced fan-out consumers to read from shards. |
 | [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`. This option is        useful when consumers want to make sure the records are fully processed before        receiving more (only applicable when `useEnhancedFanOut` is set to `false`) |
 | [options.useS3ForLargeItems] | <code>boolean</code> | <code>false</code> | Whether to automatically use an S3        bucket to store large items or not. |
@@ -211,6 +213,17 @@ Returns the aggregated statistics of all the instances of the client.
 
 **Kind**: static method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
 **Returns**: <code>Object</code> - An object with the statistics.  
+<a name="module_lifion-kinesis--Kinesis.clearLeaseManagerCache"></a>
+
+#### Kinesis.clearLeaseManagerCache(consumerGroup)
+Static wrapper function that triggers the internal lease-manager AWS API responses cache (Describesummary and ListShards)
+
+**Kind**: static method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+
+| Param | Type |
+| --- | --- |
+| consumerGroup | <code>string</code> | 
+
 
 ## License
 
