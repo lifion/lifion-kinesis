@@ -62,6 +62,21 @@ kinesis.startConsumer();
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
 
+## State table (DynamoDB)
+
+The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
+
+By default the table is named `lifion-kinesis-state`. You can change that with the `dynamoDb.tableName` option. The client creates it the first time it's needed, with on-demand billing (`PAY_PER_REQUEST`) and this key schema:
+
+| Attribute | Type | Key |
+| --- | --- | --- |
+| `consumerGroup` | String (`S`) | Partition key (`HASH`) |
+| `streamName` | String (`S`) | Sort key (`RANGE`) |
+
+If you'd rather provision the table yourself, for example with infrastructure-as-code, create it with that same schema and pass its name as `dynamoDb.tableName`.
+
+The credentials the client runs with need DynamoDB access to the table: `CreateTable` and `DescribeTable` while the table is being created, and `GetItem`, `PutItem`, `UpdateItem`, and `DeleteItem` for normal operation. Add `TagResource` and `ListTagsOfResource` if you pass `dynamoDb.tags`.
+
 ## API Reference
 
 
