@@ -1,0 +1,6 @@
+# Dependency vulnerability scanning is owned by Snyk and Dependabot.
+# CodeFactor is kept to source-code quality, so the generated lockfile
+# is excluded from analysis (it surfaces transitive CVEs with no
+# upstream fix, e.g. parse-git-config via project-name).
+exclude:
+  - "package-lock.json"
