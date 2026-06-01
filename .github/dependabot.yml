@@ -1,22 +1,37 @@
 version: 2
 updates:
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: weekly
-    day: tuesday
-  open-pull-requests-limit: 10
-  assignees:
-    - "jennyEckstein"
-    - "eaviles"
-    - "BizzlePop34"
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: weekly
-    day: tuesday
-  open-pull-requests-limit: 10
-  assignees:
-    - "jennyEckstein"
-    - "eaviles"
-    - "BizzlePop34"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: tuesday
+    open-pull-requests-limit: 10
+    assignees:
+      - "jennyEckstein"
+      - "eaviles"
+      - "BizzlePop34"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: tuesday
+    open-pull-requests-limit: 10
+    assignees:
+      - "jennyEckstein"
+      - "eaviles"
+      - "BizzlePop34"
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
