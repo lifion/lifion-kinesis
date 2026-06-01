@@ -36,3 +36,20 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+  engines:
+    name: Validate engines
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Install
+        run: npm ci --loglevel=error
+        env:
+          DISABLE_OPENCOLLECTIVE: true
+      - name: Check production dependencies against the engines range
+        run: npx --yes installed-check@^10 --engine-check --version-check --ignore-dev
