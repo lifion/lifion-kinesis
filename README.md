@@ -53,6 +53,45 @@ asyncPipeline(
 kinesis.startConsumer();
 ```
 
+## Consuming records
+
+The client is an object-mode readable stream. Each `data` event hands you an object with a batch of records and some context about where they came from:
+
+```js
+kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
+  for (const record of records) {
+    console.log(record.sequenceNumber, record.partitionKey, record.data);
+  }
+});
+```
+
+Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
+
+### Manual checkpoints and paused polling
+
+`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
+
+- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint.
+- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first.
+
+```js
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  useAutoCheckpoints: false,
+  usePausedPolling: true
+});
+
+kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
+  for (const record of records) {
+    await handle(record);
+  }
+  await setCheckpoint(records[records.length - 1].sequenceNumber);
+  continuePolling();
+});
+
+kinesis.startConsumer();
+```
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
@@ -61,6 +100,82 @@ kinesis.startConsumer();
 - Support for a polling mode, using the [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html), with automatic checkpointing.
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
+
+## State table (DynamoDB)
+
+The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
+
+By default the table is named `lifion-kinesis-state`. You can change that with the `dynamoDb.tableName` option. The client creates it the first time it's needed, with server-side encryption enabled and on-demand billing (`PAY_PER_REQUEST`). If you'd rather use provisioned capacity, pass `dynamoDb.provisionedThroughput` with `readCapacityUnits` and `writeCapacityUnits`, and the table is created in provisioned mode instead.
+
+### Key schema
+
+| Attribute | Type | Key |
+| --- | --- | --- |
+| `consumerGroup` | String (`S`) | Partition key (`HASH`) |
+| `streamName` | String (`S`) | Sort key (`RANGE`) |
+
+Those two attributes are the only ones DynamoDB needs declared. Everything else lives inside a single item per consumer group and stream.
+
+### What's in an item
+
+The client keeps all of its state for a given consumer group and stream in one item, and updates pieces of it with conditional writes. A `version` token (a short UUID) guards each piece so consumers competing for the same lease don't overwrite one another. An item looks roughly like this:
+
+```jsonc
+{
+  "consumerGroup": "my-app",         // partition key
+  "streamName": "my-stream",         // sort key
+  "streamCreatedOn": "2024-01-02T03:04:05.000Z", // see the note below
+  "version": "abc123",               // optimistic-concurrency token for the item
+  "consumers": { /* consumerId -> consumer record */ },
+  "enhancedConsumers": { /* name -> enhanced fan-out record */ },
+  "shards": { /* shardId -> shard record, when shards are auto-assigned */ }
+}
+```
+
+**`consumers[consumerId]`**, one entry per running consumer in the group:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `appName` | String | Name of the host application |
+| `host` | String | Hostname of the machine running the consumer |
+| `pid` | Number | Process ID |
+| `startedOn` | String | ISO timestamp of when the process started |
+| `heartbeat` | String | ISO timestamp refreshed while the consumer is alive |
+| `isActive` | Boolean | Whether the consumer counts toward lease distribution |
+| `isStandalone` | Boolean | `true` when automatic shard assignment is off |
+| `shards` | Map | Per-consumer shard state (only when polling in standalone mode) |
+
+**`enhancedConsumers[name]`**, one entry per registered enhanced fan-out consumer:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `arn` | String | ARN of the enhanced fan-out consumer |
+| `isUsedBy` | String / null | ID of the consumer currently holding it, or `null` |
+| `isStandalone` | Boolean | `true` when automatic shard assignment is off |
+| `version` | String | Token for locking the consumer to one reader |
+| `shards` | Map | Per-consumer shard state (only in standalone mode) |
+
+**Shard records**, keyed by shard ID. Depending on how the consumer reads, these live under the item's top-level `shards` (automatic shard assignment), under `consumers[id].shards` (standalone polling), or under `enhancedConsumers[name].shards` (standalone enhanced fan-out):
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `checkpoint` | String / null | Sequence number to resume from |
+| `approximateArrivalTimestamp` | String / null | Arrival time of the checkpointed record |
+| `leaseOwner` | String / null | ID of the consumer holding the lease |
+| `leaseExpiration` | String / null | ISO timestamp when the lease lapses |
+| `depleted` | Boolean | `true` once the shard has been fully read |
+| `parent` | String / null | Parent shard ID, used to order resharding |
+| `version` | String | Token for locking the lease |
+
+> The client records the stream's creation time in `streamCreatedOn`. If it finds an item whose timestamp doesn't match the current stream (for example, the stream was deleted and recreated under the same name), it deletes the stale item and starts the state fresh.
+
+### Provisioning the table yourself
+
+If you'd rather provision the table yourself, for example with infrastructure-as-code, create it with the key schema above and pass its name as `dynamoDb.tableName`. The non-key attributes don't need to be declared.
+
+### IAM permissions
+
+The credentials the client runs with need DynamoDB access to the table: `CreateTable` and `DescribeTable` while the table is being created, and `GetItem`, `PutItem`, `UpdateItem`, and `DeleteItem` for normal operation. Add `TagResource` and `ListTagsOfResource` if you pass `dynamoDb.tags`.
 
 ## API Reference
 
@@ -113,6 +228,7 @@ Initializes a new instance of the Kinesis client.
 | [options.maxEnhancedConsumers] | <code>number</code> | <code>5</code> | An option to set the number of enhanced        fan-out consumer ARNs that the module should initialize. Defaults to 5.        Providing a number above the AWS limit (20) or below 1 will result in using the default. |
 | [options.noRecordsPollDelay] | <code>number</code> | <code>1000</code> | The delay in milliseconds before        attempting to get more records when there were none in the previous attempt (only        applicable when `useEnhancedFanOut` is set to `false`) |
 | [options.pollDelay] | <code>number</code> | <code>250</code> | When the `usePausedPolling` option is `false`, this        option defines the delay in milliseconds in between poll requests for more records        (only applicable when `useEnhancedFanOut` is set to `false`) |
+| [options.retryOptions] | <code>Object</code> | <code>{}</code> | The [retry options as in async-retry](https://github.com/zeit/async-retry#api) applied to the calls made to AWS.Kinesis. By default, calls are        retried forever with exponential backoff; provide e.g. `{ forever: false, retries: 0 }`        to limit or disable retries. |
 | [options.s3] | <code>Object</code> | <code>{}</code> | The initialization options for the S3 client used        to store large items in buckets. In addition to `bucketName` and `endpoint`, it        can also contain any of the [`AWS.S3` options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property). |
 | [options.s3.bucketName] | <code>string</code> |  | The name of the bucket in which to store        large messages. If not provided, it defaults to the name of the Kinesis stream. |
 | [options.s3.largeItemThreshold] | <code>number</code> | <code>900</code> | The size in KB above which an item        should automatically be stored in s3. |
@@ -125,10 +241,10 @@ Initializes a new instance of the Kinesis client.
 | options.streamName | <code>string</code> |  | The name of the stream to consume data from (required) |
 | [options.supressThroughputWarnings] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client        log ProvisionedThroughputExceededException as debug rather than warning. |
 | [options.tags] | <code>Object</code> |  | If provided, the client will ensure that the stream is tagged        with these tags upon connection. If the stream is already tagged, the existing tags        will be merged with the provided ones before updating them. |
-| [options.useAutoCheckpoints] | <code>boolean</code> | <code>true</code> | Set to `true` to make the client        automatically store shard checkpoints using the sequence number of the most-recently        received record. If set to `false` consumers can use the `setCheckpoint()` function to        store any sequence number as the checkpoint for the shard. |
+| [options.useAutoCheckpoints] | <code>boolean</code> | <code>true</code> | Set to `true` to make the client        automatically store shard checkpoints using the sequence number of the most-recently        received record. If set to `false` consumers can use the `setCheckpoint()` function,        provided on the `data` event payload, to store any sequence number as the checkpoint        for the shard. |
 | [options.useAutoShardAssignment] | <code>boolean</code> | <code>true</code> | Set to `true` to automatically assign        the stream shards to the active consumers in the same group (so only one client reads      from one shard at the same time). Set to `false` to make the client read from all shards. |
 | [options.useEnhancedFanOut] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client use        enhanced fan-out consumers to read from shards. |
-| [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`. This option is        useful when consumers want to make sure the records are fully processed before        receiving more (only applicable when `useEnhancedFanOut` is set to `false`) |
+| [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`, a function provided        on the `data` event payload. This option is useful when consumers want to make sure the        records are fully processed before receiving more (only applicable when        `useEnhancedFanOut` is set to `false`) |
 | [options.useS3ForLargeItems] | <code>boolean</code> | <code>false</code> | Whether to automatically use an S3        bucket to store large items or not. |
 
 <a name="module_lifion-kinesis--Kinesis+startConsumer"></a>

@@ -1,0 +1,47 @@
+name: Integration Check
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  integration:
+    name: Integration (LocalStack)
+    runs-on: ubuntu-latest
+    services:
+      # Pinned to the free community 3.x line. The `latest`/2026.x images now
+      # require a LOCALSTACK_AUTH_TOKEN; 3.x runs token-free and covers the
+      # kinesis + dynamodb surface these tests need.
+      localstack:
+        image: localstack/localstack:3
+        ports:
+          - 4566:4566
+        env:
+          # kms is needed because the state table is created with SSE enabled,
+          # which makes DynamoDB call KMS during CreateTable.
+          SERVICES: kinesis,dynamodb,kms
+          EAGER_SERVICE_LOADING: 1
+        options: >-
+          --health-cmd "curl -sf http://localhost:4566/_localstack/health"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      AWS_REGION: us-east-1
+      LOCALSTACK_ENDPOINT: http://localhost:4566
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Install
+        run: npm ci --loglevel=error
+        env:
+          DISABLE_OPENCOLLECTIVE: true
+      - name: Run integration tests
+        run: npm run test:integration

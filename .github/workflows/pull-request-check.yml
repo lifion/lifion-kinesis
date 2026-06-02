@@ -3,22 +3,24 @@ on:
   push:
     branches:
       - develop
+      - 'support/**'
   pull_request:
     branches:
       - develop
+      - 'support/**'
 jobs:
   check:
     name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [12, 14, 16]
+        node-version: [20, 22, 24]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
@@ -32,7 +34,26 @@ jobs:
         run: npm test -- --ci --runInBand
         env:
           CI: true
+      - name: Run smoke test
+        run: npm run test:smoke
       - name: Report coverage
-        run: npx codecov
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+  engines:
+    name: Validate engines
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Install
+        run: npm ci --loglevel=error
         env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          DISABLE_OPENCOLLECTIVE: true
+      - name: Check production dependencies against the engines range
+        run: npx --yes installed-check@^10 --engine-check --version-check --ignore-dev

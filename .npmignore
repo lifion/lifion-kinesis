@@ -1,7 +1,10 @@
 *.md
 *.test.js
+*.test.mjs
 /.*
 /coverage
 /templates
+/test
 __mocks__
 jsconfig.json
+vitest.*.config.mjs

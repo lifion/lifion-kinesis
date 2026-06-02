@@ -3,18 +3,28 @@ on:
   push:
     branches:
       - main
+  # Manual publishing for maintenance lines (e.g. support/1.x). Pick the npm
+  # dist-tag explicitly: keep `latest` while that line is the current major,
+  # and switch to a non-latest tag (e.g. `v1`) once a newer major owns `latest`.
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: 'npm dist-tag to publish under'
+        required: true
+        default: 'latest'
+        type: string
 jobs:
   install-and-check:
     name: Install & Check
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           check-latest: true
-          node-version: '12'
+          node-version: '20'
       - name: Install
         run: npm ci --loglevel=error
         env:
@@ -31,18 +41,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           check-latest: true
-          node-version: '12'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
       - name: Install
         run: npm ci --loglevel=error
         env:
           DISABLE_OPENCOLLECTIVE: true
       - name: Publish
-        run: npm publish
+        run: npm publish --tag "${{ github.event.inputs.dist_tag || 'latest' }}"
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
