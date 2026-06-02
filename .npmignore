@@ -7,4 +7,4 @@
 /test
 __mocks__
 jsconfig.json
-vitest.integration.config.mjs
+vitest.*.config.mjs
