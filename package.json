@@ -48,6 +48,7 @@
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable",
     "test": "jest -c ./.jest.json",
+    "test:integration": "vitest run -c vitest.integration.config.mjs",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {
@@ -65,6 +66,8 @@
     "short-uuid": "^4.2.2"
   },
   "devDependencies": {
+    "@smithy/eventstream-codec": "^4.3.6",
+    "@smithy/util-utf8": "^4.3.6",
     "auto-changelog": "^2.4.0",
     "chalk": "^4.1.2",
     "chance": "^1.1.8",
@@ -77,7 +80,8 @@
     "npm-watch": "^0.11.0",
     "pinst": "^2.1.6",
     "prettier": "^2.5.1",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "vitest": "^4.1.8"
   },
   "watch": {
     "build-docs": {
