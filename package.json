@@ -49,6 +49,7 @@
     "postpublish": "pinst --enable",
     "test": "jest -c ./.jest.json",
     "test:integration": "vitest run -c vitest.integration.config.mjs",
+    "test:smoke": "vitest run -c vitest.smoke.config.mjs",
     "version": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {

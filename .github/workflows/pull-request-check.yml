@@ -32,6 +32,8 @@ jobs:
         run: npm test -- --ci --runInBand
         env:
           CI: true
+      - name: Run smoke test
+        run: npm run test:smoke
       - name: Report coverage
         uses: codecov/codecov-action@v4
         with:
