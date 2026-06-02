@@ -53,6 +53,45 @@ asyncPipeline(
 kinesis.startConsumer();
 ```
 
+## Consuming records
+
+The client is an object-mode readable stream. Each `data` event hands you an object with a batch of records and some context about where they came from:
+
+```js
+kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
+  for (const record of records) {
+    console.log(record.sequenceNumber, record.partitionKey, record.data);
+  }
+});
+```
+
+Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
+
+### Manual checkpoints and paused polling
+
+`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
+
+- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint.
+- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first.
+
+```js
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  useAutoCheckpoints: false,
+  usePausedPolling: true
+});
+
+kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
+  for (const record of records) {
+    await handle(record);
+  }
+  await setCheckpoint(records[records.length - 1].sequenceNumber);
+  continuePolling();
+});
+
+kinesis.startConsumer();
+```
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
@@ -202,10 +241,10 @@ Initializes a new instance of the Kinesis client.
 | options.streamName | <code>string</code> |  | The name of the stream to consume data from (required) |
 | [options.supressThroughputWarnings] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client        log ProvisionedThroughputExceededException as debug rather than warning. |
 | [options.tags] | <code>Object</code> |  | If provided, the client will ensure that the stream is tagged        with these tags upon connection. If the stream is already tagged, the existing tags        will be merged with the provided ones before updating them. |
-| [options.useAutoCheckpoints] | <code>boolean</code> | <code>true</code> | Set to `true` to make the client        automatically store shard checkpoints using the sequence number of the most-recently        received record. If set to `false` consumers can use the `setCheckpoint()` function to        store any sequence number as the checkpoint for the shard. |
+| [options.useAutoCheckpoints] | <code>boolean</code> | <code>true</code> | Set to `true` to make the client        automatically store shard checkpoints using the sequence number of the most-recently        received record. If set to `false` consumers can use the `setCheckpoint()` function,        provided on the `data` event payload, to store any sequence number as the checkpoint        for the shard. |
 | [options.useAutoShardAssignment] | <code>boolean</code> | <code>true</code> | Set to `true` to automatically assign        the stream shards to the active consumers in the same group (so only one client reads      from one shard at the same time). Set to `false` to make the client read from all shards. |
 | [options.useEnhancedFanOut] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client use        enhanced fan-out consumers to read from shards. |
-| [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`. This option is        useful when consumers want to make sure the records are fully processed before        receiving more (only applicable when `useEnhancedFanOut` is set to `false`) |
+| [options.usePausedPolling] | <code>boolean</code> | <code>false</code> | Set to `true` to make the client not to        poll for more records until the consumer calls `continuePolling()`, a function provided        on the `data` event payload. This option is useful when consumers want to make sure the        records are fully processed before receiving more (only applicable when        `useEnhancedFanOut` is set to `false`) |
 | [options.useS3ForLargeItems] | <code>boolean</code> | <code>false</code> | Whether to automatically use an S3        bucket to store large items or not. |
 
 <a name="module_lifion-kinesis--Kinesis+startConsumer"></a>
