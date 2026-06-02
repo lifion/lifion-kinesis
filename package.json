@@ -36,7 +36,7 @@
   "homepage": "https://github.com/lifion/lifion-kinesis#readme",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=12.22.0 <16.10.0 || ^16.13.0 || >=17.0.1"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "build-docs": "jsdoc2md -t ./templates/README.hbs ./lib/*.js > ./README.md && git add ./README.md",

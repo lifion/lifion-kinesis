@@ -15,7 +15,7 @@ jobs:
       # require a LOCALSTACK_AUTH_TOKEN; 3.x runs token-free and covers the
       # kinesis + dynamodb surface these tests need.
       localstack:
-        image: localstack/localstack:3
+        image: public.ecr.aws/localstack/localstack:3
         ports:
           - 4566:4566
         env:
@@ -37,7 +37,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           check-latest: true
       - name: Install
         run: npm ci --loglevel=error
