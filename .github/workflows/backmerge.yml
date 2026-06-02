@@ -1,0 +1,27 @@
+name: Back-merge main into develop
+on:
+  push:
+    branches:
+      - main
+jobs:
+  open-back-merge:
+    name: Open back-merge PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+      - name: Open back-merge PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(gh pr list --base develop --head main --state open --json number --jq '.[0].number // empty')" ]; then
+            echo "A back-merge PR is already open."
+            exit 0
+          fi
+          gh pr create --base develop --head main \
+            --title "Sync main into develop" \
+            --body "Automated back-merge of main into develop." \
+            || echo "Nothing to back-merge."
