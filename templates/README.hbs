@@ -62,6 +62,82 @@ kinesis.startConsumer();
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
 
+## State table (DynamoDB)
+
+The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
+
+By default the table is named `lifion-kinesis-state`. You can change that with the `dynamoDb.tableName` option. The client creates it the first time it's needed, with server-side encryption enabled and on-demand billing (`PAY_PER_REQUEST`). If you'd rather use provisioned capacity, pass `dynamoDb.provisionedThroughput` with `readCapacityUnits` and `writeCapacityUnits`, and the table is created in provisioned mode instead.
+
+### Key schema
+
+| Attribute | Type | Key |
+| --- | --- | --- |
+| `consumerGroup` | String (`S`) | Partition key (`HASH`) |
+| `streamName` | String (`S`) | Sort key (`RANGE`) |
+
+Those two attributes are the only ones DynamoDB needs declared. Everything else lives inside a single item per consumer group and stream.
+
+### What's in an item
+
+The client keeps all of its state for a given consumer group and stream in one item, and updates pieces of it with conditional writes. A `version` token (a short UUID) guards each piece so consumers competing for the same lease don't overwrite one another. An item looks roughly like this:
+
+```jsonc
+{
+  "consumerGroup": "my-app",         // partition key
+  "streamName": "my-stream",         // sort key
+  "streamCreatedOn": "2024-01-02T03:04:05.000Z", // see the note below
+  "version": "abc123",               // optimistic-concurrency token for the item
+  "consumers": { /* consumerId -> consumer record */ },
+  "enhancedConsumers": { /* name -> enhanced fan-out record */ },
+  "shards": { /* shardId -> shard record, when shards are auto-assigned */ }
+}
+```
+
+**`consumers[consumerId]`**, one entry per running consumer in the group:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `appName` | String | Name of the host application |
+| `host` | String | Hostname of the machine running the consumer |
+| `pid` | Number | Process ID |
+| `startedOn` | String | ISO timestamp of when the process started |
+| `heartbeat` | String | ISO timestamp refreshed while the consumer is alive |
+| `isActive` | Boolean | Whether the consumer counts toward lease distribution |
+| `isStandalone` | Boolean | `true` when automatic shard assignment is off |
+| `shards` | Map | Per-consumer shard state (only when polling in standalone mode) |
+
+**`enhancedConsumers[name]`**, one entry per registered enhanced fan-out consumer:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `arn` | String | ARN of the enhanced fan-out consumer |
+| `isUsedBy` | String / null | ID of the consumer currently holding it, or `null` |
+| `isStandalone` | Boolean | `true` when automatic shard assignment is off |
+| `version` | String | Token for locking the consumer to one reader |
+| `shards` | Map | Per-consumer shard state (only in standalone mode) |
+
+**Shard records**, keyed by shard ID. Depending on how the consumer reads, these live under the item's top-level `shards` (automatic shard assignment), under `consumers[id].shards` (standalone polling), or under `enhancedConsumers[name].shards` (standalone enhanced fan-out):
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `checkpoint` | String / null | Sequence number to resume from |
+| `approximateArrivalTimestamp` | String / null | Arrival time of the checkpointed record |
+| `leaseOwner` | String / null | ID of the consumer holding the lease |
+| `leaseExpiration` | String / null | ISO timestamp when the lease lapses |
+| `depleted` | Boolean | `true` once the shard has been fully read |
+| `parent` | String / null | Parent shard ID, used to order resharding |
+| `version` | String | Token for locking the lease |
+
+> The client records the stream's creation time in `streamCreatedOn`. If it finds an item whose timestamp doesn't match the current stream (for example, the stream was deleted and recreated under the same name), it deletes the stale item and starts the state fresh.
+
+### Provisioning the table yourself
+
+If you'd rather provision the table yourself, for example with infrastructure-as-code, create it with the key schema above and pass its name as `dynamoDb.tableName`. The non-key attributes don't need to be declared.
+
+### IAM permissions
+
+The credentials the client runs with need DynamoDB access to the table: `CreateTable` and `DescribeTable` while the table is being created, and `GetItem`, `PutItem`, `UpdateItem`, and `DeleteItem` for normal operation. Add `TagResource` and `ListTagsOfResource` if you pass `dynamoDb.tags`.
+
 ## API Reference
 
 {{#module name="lifion-kinesis"}}
