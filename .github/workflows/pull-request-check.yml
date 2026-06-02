@@ -4,10 +4,12 @@ on:
     branches:
       - develop
       - 'support/**'
+      - 'release/**'
   pull_request:
     branches:
       - develop
       - 'support/**'
+      - main
 jobs:
   check:
     name: Node ${{ matrix.node-version }} on ${{ matrix.os }}

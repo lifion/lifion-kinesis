@@ -55,4 +55,33 @@ jobs:
         env:
           DISABLE_OPENCOLLECTIVE: true
       - name: Publish
-        run: npm publish --provenance --tag "${{ github.event.inputs.dist_tag || 'latest' }}"
+        run: |
+          pkg=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "${pkg}@${version}" version > /dev/null 2>&1; then
+            echo "${pkg}@${version} is already published; skipping."
+          else
+            npm publish --provenance --tag "${{ github.event.inputs.dist_tag || 'latest' }}"
+          fi
+  release:
+    name: Tag & GitHub Release
+    needs: npm-publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+      - name: Resolve version
+        id: version
+        run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ steps.version.outputs.value }}"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "Release $tag already exists; skipping."
+          else
+            gh release create "$tag" --title "$tag" --target "$GITHUB_SHA" --generate-notes
+          fi
