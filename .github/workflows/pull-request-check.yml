@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - develop
+      - 'support/**'
   pull_request:
     branches:
       - develop
+      - 'support/**'
 jobs:
   check:
     name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
