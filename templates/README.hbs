@@ -53,6 +53,45 @@ asyncPipeline(
 kinesis.startConsumer();
 ```
 
+## Consuming records
+
+The client is an object-mode readable stream. Each `data` event hands you an object with a batch of records and some context about where they came from:
+
+```js
+kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
+  for (const record of records) {
+    console.log(record.sequenceNumber, record.partitionKey, record.data);
+  }
+});
+```
+
+Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
+
+### Manual checkpoints and paused polling
+
+`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
+
+- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint.
+- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first.
+
+```js
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  useAutoCheckpoints: false,
+  usePausedPolling: true
+});
+
+kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
+  for (const record of records) {
+    await handle(record);
+  }
+  await setCheckpoint(records[records.length - 1].sequenceNumber);
+  continuePolling();
+});
+
+kinesis.startConsumer();
+```
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
