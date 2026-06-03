@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     coverage: { enabled: false },
     environment: 'node',
-    include: ['test/smoke/**/*.test.mjs'],
+    include: ['test/smoke/**/*.test.js'],
     reporters: ['default']
   }
 });

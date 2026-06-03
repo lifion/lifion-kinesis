@@ -1,7 +1,6 @@
 import { createServer, request as httpRequest } from 'node:http';
 import { createRequire } from 'node:module';
 import { setTimeout as delay } from 'node:timers/promises';
-
 import { EventStreamCodec } from '@smithy/eventstream-codec';
 import { fromUtf8, toUtf8 } from '@smithy/util-utf8';
 
@@ -33,7 +32,8 @@ export async function startFanOutProxy({
     secretAccessKey: 'test'
   });
 
-  const debug = process.env.PROXY_DEBUG === 'true' ? (...a) => console.error('[proxy]', ...a) : () => {};
+  const debug =
+    process.env.PROXY_DEBUG === 'true' ? (...a) => console.error('[proxy]', ...a) : () => {};
 
   const server = createServer((clientReq, clientRes) => {
     const chunks = [];
