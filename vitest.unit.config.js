@@ -16,6 +16,6 @@ export default defineConfig({
     },
     environment: 'node',
     include: ['lib/**/*.test.js'],
-    setupFiles: ['test/unit-setup.mjs']
+    setupFiles: ['test/unit-setup.js']
   }
 });
