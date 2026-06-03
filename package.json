@@ -61,7 +61,7 @@
     "got": "^11.8.6",
     "is-retry-allowed": "^3.0.0",
     "lifion-aws-event-stream": "^1.0.7",
-    "lru-cache": "^6.0.0",
+    "lru-cache": "^11.5.1",
     "lzutf8": "^0.6.3",
     "project-name": "^1.0.0",
     "protobufjs": "^8.5.0",
