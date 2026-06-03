@@ -1,9 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { createRequire } from 'node:module';
 
-// The library is CommonJS; load it from these ESM test files.
-const require = createRequire(import.meta.url);
-const Kinesis = require('../../../lib/index.js');
+import Kinesis from '../../../lib/index.js';
 
 const ENDPOINT = process.env.LOCALSTACK_ENDPOINT || 'http://localhost:4566';
 const REGION = process.env.AWS_REGION || 'us-east-1';

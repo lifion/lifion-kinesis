@@ -33,7 +33,7 @@ jobs:
       - name: Run linter
         run: npm run eslint
       - name: Run tests
-        run: npm test -- --ci --runInBand
+        run: npm test
         env:
           CI: true
       - name: Run smoke test
