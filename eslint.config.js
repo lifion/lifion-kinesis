@@ -64,11 +64,10 @@ export default defineConfig([
       'jsdoc/no-defaults': 'off',
       'jsdoc/no-undefined-types': ['error', { definedTypes: ['NodeJS'] }],
       'jsdoc/reject-any-type': 'off',
-      'jsdoc/reject-function-type': 'off',
       'jsdoc/require-hyphen-before-param-description': 'warn',
       'jsdoc/require-jsdoc': 'off',
       'jsdoc/require-returns-description': 'off',
-      'jsdoc/tag-lines': 'off',
+      'jsdoc/tag-lines': ['warn', 'never', { startLines: 1 }],
       'n/handle-callback-err': 'off',
       'n/no-missing-import': 'error',
       'no-secrets/no-secrets': [
