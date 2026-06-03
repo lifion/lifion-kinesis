@@ -6,6 +6,8 @@
   },
   "rules": {
     "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "node/no-missing-import": "off",
     "node/no-unsupported-features/es-syntax": "off",
     "jest/no-conditional-expect": "off",
     "radar/no-identical-functions": "off",
