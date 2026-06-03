@@ -64,7 +64,7 @@
     "lzutf8": "^0.6.3",
     "project-name": "^1.0.0",
     "protobufjs": "^8.5.0",
-    "short-uuid": "^4.2.2"
+    "short-uuid": "^6.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
