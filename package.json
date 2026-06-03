@@ -64,7 +64,7 @@
     "lru-cache": "^6.0.0",
     "lzutf8": "^0.6.3",
     "project-name": "^1.0.0",
-    "protobufjs": "^7.6.2",
+    "protobufjs": "^8.5.0",
     "short-uuid": "^4.2.2"
   },
   "devDependencies": {
