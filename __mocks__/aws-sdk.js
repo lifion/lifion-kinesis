@@ -1,12 +1,12 @@
-'use strict';
+import { vi } from 'vitest';
 
 function createResponseMock(data = {}) {
-  return jest.fn(() => {
+  return vi.fn(() => {
     return { promise: () => Promise.resolve(data) };
   });
 }
 
-const resolvePromise = jest.fn(() =>
+const resolvePromise = vi.fn(() =>
   Promise.resolve({
     accessKeyId: 'resolved-access-key-id',
     secretAccessKey: 'resolved-secret-access-key',
@@ -14,7 +14,9 @@ const resolvePromise = jest.fn(() =>
   })
 );
 
-const CredentialProviderChain = jest.fn(() => ({ resolvePromise }));
+const CredentialProviderChain = vi.fn(function () {
+  return { resolvePromise };
+});
 
 const createTable = createResponseMock();
 const deleteMock = createResponseMock();
@@ -26,20 +28,24 @@ const tagResource = createResponseMock();
 const update = createResponseMock();
 const waitFor = createResponseMock();
 
-const DynamoDB = jest.fn(() => ({
-  createTable,
-  describeTable,
-  listTagsOfResource,
-  tagResource,
-  waitFor
-}));
+const DynamoDB = vi.fn(function () {
+  return {
+    createTable,
+    describeTable,
+    listTagsOfResource,
+    tagResource,
+    waitFor
+  };
+});
 
-DynamoDB.DocumentClient = jest.fn(() => ({
-  delete: deleteMock,
-  get,
-  put,
-  update
-}));
+DynamoDB.DocumentClient = vi.fn(function () {
+  return {
+    delete: deleteMock,
+    get,
+    put,
+    update
+  };
+});
 
 const addTagsToStream = createResponseMock();
 const createStream = createResponseMock();
@@ -57,7 +63,7 @@ const putRecords = createResponseMock({ FailedRecordCount: 0, Records: [] });
 const registerStreamConsumer = createResponseMock();
 const startStreamEncryption = createResponseMock();
 
-const Kinesis = jest.fn(({ endpoint } = {}) => {
+const Kinesis = vi.fn(function ({ endpoint } = {}) {
   return {
     addTagsToStream,
     createStream,
@@ -89,17 +95,19 @@ const putBucketLifecycleConfiguration = createResponseMock();
 const putBucketTagging = createResponseMock();
 const putObject = createResponseMock();
 
-const S3 = jest.fn(() => ({
-  constructor,
-  createBucket,
-  getBucketLifecycleConfiguration,
-  getBucketTagging,
-  getObject,
-  headBucket,
-  putBucketLifecycleConfiguration,
-  putBucketTagging,
-  putObject
-}));
+const S3 = vi.fn(function () {
+  return {
+    constructor,
+    createBucket,
+    getBucketLifecycleConfiguration,
+    getBucketTagging,
+    getObject,
+    headBucket,
+    putBucketLifecycleConfiguration,
+    putBucketTagging,
+    putObject
+  };
+});
 
 function mockClear() {
   resolvePromise.mockClear();
@@ -145,10 +153,5 @@ function mockClear() {
   S3.mockClear();
 }
 
-module.exports = {
-  CredentialProviderChain,
-  DynamoDB,
-  Kinesis,
-  S3,
-  mockClear
-};
+export { CredentialProviderChain, DynamoDB, Kinesis, S3, mockClear };
+export default { CredentialProviderChain, DynamoDB, Kinesis, S3, mockClear };

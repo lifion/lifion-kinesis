@@ -1,6 +1,12 @@
 {
   "extends": "lifion",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
   "rules": {
+    "import/extensions": "off",
+    "node/no-unsupported-features/es-syntax": "off",
     "jest/no-conditional-expect": "off",
     "radar/no-identical-functions": "off",
     "unicorn/no-array-callback-reference": "off",
@@ -23,6 +29,10 @@
     }]
   },
   "overrides": [
+    {
+      "files": ["lib/*.test.js", "__mocks__/*.js"],
+      "rules": { "func-names": "off" }
+    },
     {
       "files": ["lib/records.js"],
       "rules": { "promise/catch-or-return": "off" }

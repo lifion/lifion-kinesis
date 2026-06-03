@@ -1,13 +1,12 @@
-'use strict';
-
-const { Transform } = require('stream');
+import { Transform } from 'node:stream';
+import { vi } from 'vitest';
 
 let hooks;
 let response;
 
-const abort = jest.fn();
+const abort = vi.fn();
 
-const stream = jest.fn(() => {
+const stream = vi.fn(() => {
   response = new Transform({ objectMode: true });
   setImmediate(() => {
     const request = { abort };
@@ -16,7 +15,7 @@ const stream = jest.fn(() => {
   return response;
 });
 
-const extend = jest.fn((...args) => {
+const extend = vi.fn((...args) => {
   [{ hooks }] = args;
   return { stream };
 });
@@ -36,4 +35,4 @@ function getHooks() {
   return hooks;
 }
 
-module.exports = { extend, getHooks, getMocks, mockClear };
+export default { extend, getHooks, getMocks, mockClear };
