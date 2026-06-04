@@ -1,12 +1,8 @@
 import { createServer, request as httpRequest } from 'node:http';
-import { createRequire } from 'node:module';
 import { setTimeout as delay } from 'node:timers/promises';
-
+import { Kinesis } from '@aws-sdk/client-kinesis';
 import { EventStreamCodec } from '@smithy/eventstream-codec';
 import { fromUtf8, toUtf8 } from '@smithy/util-utf8';
-
-const require = createRequire(import.meta.url);
-const { Kinesis } = require('aws-sdk');
 
 const SUBSCRIBE_TARGET = 'Kinesis_20131202.SubscribeToShard';
 const EVENT_STREAM_CONTENT_TYPE = 'application/vnd.amazon.eventstream';
@@ -27,13 +23,13 @@ export async function startFanOutProxy({
   const codec = new EventStreamCodec(toUtf8, fromUtf8);
   const upstream = new URL(localstackEndpoint);
   const kinesis = new Kinesis({
-    accessKeyId: 'test',
+    credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
     endpoint: localstackEndpoint,
-    region,
-    secretAccessKey: 'test'
+    region
   });
 
-  const debug = process.env.PROXY_DEBUG === 'true' ? (...a) => console.error('[proxy]', ...a) : () => {};
+  const debug =
+    process.env.PROXY_DEBUG === 'true' ? (...a) => console.error('[proxy]', ...a) : () => {};
 
   const server = createServer((clientReq, clientRes) => {
     const chunks = [];
@@ -96,16 +92,14 @@ async function streamSubscription({ body, clientRes, codec, debug = () => {}, ki
         ? 'LATEST'
         : 'TRIM_HORIZON';
 
-  const { ShardIterator } = await kinesis
-    .getShardIterator({
-      ShardId,
-      ShardIteratorType: iteratorType,
-      StreamName: streamName,
-      ...(iteratorType === 'AFTER_SEQUENCE_NUMBER' && {
-        StartingSequenceNumber: StartingPosition.SequenceNumber
-      })
+  const { ShardIterator } = await kinesis.getShardIterator({
+    ShardId,
+    ShardIteratorType: iteratorType,
+    StreamName: streamName,
+    ...(iteratorType === 'AFTER_SEQUENCE_NUMBER' && {
+      StartingSequenceNumber: StartingPosition.SequenceNumber
     })
-    .promise();
+  });
 
   clientRes.writeHead(200, { 'content-type': EVENT_STREAM_CONTENT_TYPE });
 
@@ -116,9 +110,10 @@ async function streamSubscription({ body, clientRes, codec, debug = () => {}, ki
 
   let iterator = ShardIterator;
   while (open && iterator) {
-    const { NextShardIterator, Records } = await kinesis
-      .getRecords({ Limit: 1000, ShardIterator: iterator })
-      .promise();
+    const { NextShardIterator, Records } = await kinesis.getRecords({
+      Limit: 1000,
+      ShardIterator: iterator
+    });
 
     if (Records.length > 0) {
       debug('got records:', Records.length);

@@ -1,6 +1,4 @@
-'use strict';
-
-const { Transform } = require('stream');
+import { Transform } from 'node:stream';
 
 function Parser() {
   return new Transform({
@@ -12,4 +10,5 @@ function Parser() {
   });
 }
 
-module.exports = { Parser };
+export { Parser };
+export default { Parser };

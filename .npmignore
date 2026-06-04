@@ -1,10 +1,10 @@
 *.md
 *.test.js
-*.test.mjs
 /.*
 /coverage
 /templates
 /test
 __mocks__
+eslint.config.js
 jsconfig.json
-vitest.*.config.mjs
+vitest.*.config.js

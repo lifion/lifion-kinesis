@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
-import { collectRecords, createClient, distinctIds, uniqueStreamName } from './helpers/client.mjs';
-import { startFanOutProxy } from './helpers/fan-out-proxy.mjs';
+import { collectRecords, createClient, distinctIds, uniqueStreamName } from './helpers/client.js';
+import { startFanOutProxy } from './helpers/fan-out-proxy.js';
 
 // Enhanced fan-out exercises RegisterStreamConsumer + the raw SubscribeToShard
 // HTTP path (SigV4 + got streaming + event-stream parsing). LocalStack community
@@ -32,6 +33,7 @@ describe('enhanced fan-out consumer (SubscribeToShard)', () => {
     client = createClient({
       endpoint: proxy.url,
       maxEnhancedConsumers: 1,
+      requestHandler: new NodeHttpHandler(),
       streamName,
       useEnhancedFanOut: true
     });
@@ -44,7 +46,7 @@ describe('enhanced fan-out consumer (SubscribeToShard)', () => {
     await client.putRecords({ records: sent });
 
     const received = await collectRecords(client, (records) => distinctIds(records) >= total);
-    const ids = [...new Set(received.map((record) => record.data.id))].sort((a, b) => a - b);
+    const ids = Array.from(new Set(received.map((record) => record.data.id))).sort((a, b) => a - b);
 
     expect(ids).toEqual(sent.map((_, id) => id));
   });

@@ -1,0 +1,92 @@
+name: Cut Release
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Semver bump to apply'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      custom_version:
+        description: 'Explicit version (overrides the bump, e.g. 2.0.0 or 2.0.0-rc.1)'
+        required: false
+        type: string
+jobs:
+  cut:
+    name: Cut release branch and open PR to main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          check-latest: true
+          node-version: '22'
+      - name: Install
+        run: npm ci --ignore-scripts --loglevel=error
+        env:
+          DISABLE_OPENCOLLECTIVE: true
+      - name: Run linter
+        run: npm run eslint
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+      - name: Bump version and regenerate changelog
+        run: |
+          bump="${{ github.event.inputs.custom_version }}"
+          if [ -z "$bump" ]; then
+            bump="${{ github.event.inputs.release_type }}"
+          fi
+          npm version "$bump" --no-git-tag-version
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_ENV"
+      - name: Guard against an existing release branch
+        run: |
+          if git ls-remote --exit-code --heads origin "release/${version}" > /dev/null 2>&1; then
+            echo "::error::release/${version} already exists on the remote. Delete it or pick a different version."
+            exit 1
+          fi
+      - name: Create release branch and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "release/${version}"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "${version}"
+          git push origin "release/${version}"
+      - name: Open pull request into main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > /tmp/pr-body.md <<'BODY'
+          Cut by the **Cut Release** action from `develop`. Bumps the version, regenerates `CHANGELOG.md`, and opens this PR so the release stays a human merge.
+
+          ## Before merging
+          - [ ] Review `CHANGELOG.md` and hand-label any breaking changes (auto-changelog goes off commit subjects and will not flag them).
+          - [ ] Confirm the version and the diff are what you expect.
+
+          ## On merge to `main`
+          The existing pipeline takes over automatically:
+          - `publish-module.yml` re-runs lint + tests, publishes to npm (OIDC/provenance, skips if already published), then tags and creates the GitHub Release.
+          - `backmerge.yml` opens the `main` → `develop` sync PR.
+
+          ## Note on checks
+          This PR was opened by the Actions token, so GitHub will not auto-run the matrix on it (the recursion-prevention rule). The release branch was linted and tested at cut time, and the publish workflow re-validates before publishing. Admin-merge, or push an empty commit to the branch to trigger the checks.
+          BODY
+          gh pr create \
+            --base main \
+            --head "release/${version}" \
+            --title "Release v${version}" \
+            --body-file /tmp/pr-body.md

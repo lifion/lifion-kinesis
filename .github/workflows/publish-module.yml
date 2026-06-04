@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           check-latest: true
-          node-version: '20'
+          node-version: '22'
       - name: Install
         run: npm ci --loglevel=error
         env:
@@ -46,7 +46,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           check-latest: true
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
       - name: Update npm
         run: npm install -g npm@latest

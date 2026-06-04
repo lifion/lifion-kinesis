@@ -4,6 +4,8 @@
 
 Lifion's Node.js client for [Amazon Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/).
 
+> **Upgrading from v1?** v2 requires Node.js 22.12+ and ships as an ES module. See the [migration guide](./MIGRATION.md) for the full list of changes.
+
 ## Getting Started
 
 To install the module:
@@ -12,16 +14,16 @@ To install the module:
 npm install lifion-kinesis --save
 ```
 
-The main module export is a Kinesis class that instantiates as a [readable stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams).
+The main module export is a Kinesis class that instantiates as a [readable stream](https://nodejs.org/api/stream.html#readable-streams).
 
 ```js
-const Kinesis = require('lifion-kinesis');
+import Kinesis from 'lifion-kinesis';
 
 const kinesis = new Kinesis({
   streamName: 'sample-stream'
-  /* other options from AWS.Kinesis */
+  /* plus any AWS SDK v3 client options */
 });
-kinesis.on('data', data => {
+kinesis.on('data', (data) => {
   console.log('Incoming data:', data);
 });
 kinesis.startConsumer();
@@ -30,19 +32,19 @@ kinesis.startConsumer();
 To take advantage of back-pressure, the client can be piped to a writable stream:
 
 ```js
-const { promisify } = require('util');
-const Kinesis = require('lifion-kinesis');
-const stream = require('stream');
+import { Writable, pipeline } from 'node:stream';
+import { promisify } from 'node:util';
+import Kinesis from 'lifion-kinesis';
 
-const asyncPipeline = promisify(stream.pipeline);
+const asyncPipeline = promisify(pipeline);
 const kinesis = new Kinesis({
   streamName: 'sample-stream'
-  /* other options from AWS.Kinesis */
+  /* plus any AWS SDK v3 client options */
 });
 
 asyncPipeline(
   kinesis,
-  new stream.Writable({
+  new Writable({
     objectMode: true,
     write(data, encoding, callback) {
       console.log(data);
@@ -52,6 +54,25 @@ asyncPipeline(
 ).catch(console.error);
 kinesis.startConsumer();
 ```
+
+## Credentials
+
+Starting with v2, lifion-kinesis runs on the AWS SDK for JavaScript v3. In most setups you don't pass any credentials: the SDK resolves them from its default provider chain, which reads environment variables, shared config files, web identity tokens, and the IAM role attached to your ECS task or EC2 instance. That covers the same sources the v1 client relied on.
+
+To run with specific credentials, pass a `credentials` object or an AWS [credential provider](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html):
+
+```js
+import { fromIni } from '@aws-sdk/credential-providers';
+
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  credentials: fromIni({ profile: 'my-profile' })
+});
+```
+
+Any AWS SDK v3 client option (`region`, `endpoint`, `credentials`, and so on) can be set at the top level for the Kinesis client, and under the `dynamoDb` and `s3` options for those services.
+
+> Upgrading from v1? The top-level `accessKeyId`, `secretAccessKey`, and `sessionToken` options are no longer read; wrap them in a `credentials` object instead. See the [migration guide](./MIGRATION.md) for this and the other changes in v2.
 
 ## Consuming records
 
@@ -67,12 +88,16 @@ kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
 
 Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
 
+### Batch sizes and `limit`
+
+In polling mode, `limit` (default `10000`) maps to the `Limit` parameter of the Kinesis [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html). It's an upper bound on how many records a single call can return, so a `data` event often carries fewer records than `limit` even when the shard still has plenty waiting. Kinesis returns whatever happens to be in the next batch, capped by `limit` or by 10 MB, whichever it reaches first. The client keeps polling and delivers the rest in later `data` events, so you still receive every record over time. To gauge how far behind you are, `millisBehindLatest` reports the lag in milliseconds; it trends toward `0` as you catch up to the tip of the shard.
+
 ### Manual checkpoints and paused polling
 
-`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
+`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself:
 
-- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint.
-- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first.
+- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint. This works in both polling and enhanced fan-out mode (`useEnhancedFanOut: true`).
+- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first. Paused polling applies to polling mode only (`useEnhancedFanOut: false`).
 
 ```js
 const kinesis = new Kinesis({
@@ -92,6 +117,37 @@ kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
 kinesis.startConsumer();
 ```
 
+### Reading specific shards
+
+By default the client reads from every shard, either by distributing them across the consumer group (`useAutoShardAssignment: true`) or by reading them all from a single client (`useAutoShardAssignment: false`). To read only a subset, pass `shardIds`:
+
+```js
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  shardIds: ['shardId-000000000000', 'shardId-000000000002']
+});
+kinesis.startConsumer();
+```
+
+With `shardIds` set, the client reads exactly those shards on its own and stays out of the group's automatic shard assignment, so `useAutoShardAssignment` doesn't apply. Shard IDs that aren't in the stream are logged and skipped.
+
+### Inspecting shard assignments
+
+When several consumers share a group, the client spreads the stream's shards across them. `getShardAssignments()` reports who currently owns what, keyed by consumer ID, so you can see how the work is distributed without querying the DynamoDB state table yourself. The consumer has to be started first.
+
+```js
+const kinesis = new Kinesis({ streamName: 'sample-stream' });
+await kinesis.startConsumer();
+
+const assignments = await kinesis.getShardAssignments();
+// {
+//   'consumer-a': { host, pid, isActive, shards: ['shardId-000000000000', …], … },
+//   'consumer-b': { … }
+// }
+```
+
+Each entry carries the consumer's `appName`, `host`, `pid`, `startedOn`, `heartbeat`, `isActive`, and `isStandalone`, along with the sorted `shards` it's assigned.
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
@@ -100,6 +156,22 @@ kinesis.startConsumer();
 - Support for a polling mode, using the [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html), with automatic checkpointing.
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
+
+## Enhanced fan-out over HTTP/1.1
+
+The enhanced fan-out consumer reads `SubscribeToShard` over HTTP/1.1. It streams the response as a chunked `application/vnd.amazon.eventstream` body and parses the binary frames itself with [`lifion-aws-event-stream`](https://github.com/lifion/lifion-aws-event-stream), rather than going through the AWS SDK's HTTP/2 client.
+
+That can be surprising, since AWS announced and documents enhanced fan-out as an HTTP/2 push API. In practice the Kinesis data endpoint doesn't negotiate `h2` over the usual TLS ALPN handshake, so `SubscribeToShard` arrives as an HTTP/1.1 stream carrying AWS's own event-stream frames. @eaviles reverse-engineered that wire format for the v1 client, and the HTTP/1.1 path has run in production since. Other clients have hit the same thing (see the references below), so if you're considering a move to HTTP/2 here, it's worth knowing the endpoint won't ALPN-negotiate it today (last checked 2026-06-04).
+
+References:
+
+- [Amazon Kinesis Data Streams Adds Enhanced Fan-Out and HTTP/2](https://aws.amazon.com/blogs/aws/kds-enhanced-fanout/), the original announcement, which presents the feature as HTTP/2.
+- [`SubscribeToShard` API reference](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_SubscribeToShard.html), which also describes it as establishing an HTTP/2 connection.
+- [aws-sdk-cpp #3115](https://github.com/aws/aws-sdk-cpp/discussions/3115) and [#3118](https://github.com/aws/aws-sdk-cpp/issues/3118), where others observe `SubscribeToShard` going over HTTP/1.1 with batchy, high-latency delivery.
+
+### Deregistering idle enhanced consumers
+
+The client pre-registers up to `maxEnhancedConsumers` enhanced fan-out consumers, and AWS bills for each registered consumer whether or not it's reading. If your consumer group scales down, the extra consumers sit idle and keep costing money. Set `enhancedConsumerIdleTimeout` (in milliseconds) to have the client deregister consumers that have stayed unused for that long, keeping at least one. They get re-registered as the group scales back up, which takes a little while since AWS has to make each one active again, so pick a timeout comfortably larger than your lease and heartbeat cycles. It defaults to `0`, which leaves every registered consumer in place.
 
 ## State table (DynamoDB)
 
@@ -190,6 +262,7 @@ The credentials the client runs with need DynamoDB access to the table: `CreateT
             * [.listShards(params)](#module_lifion-kinesis--Kinesis+listShards) ⇒ <code>Promise</code>
             * [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
             * [.getStats()](#module_lifion-kinesis--Kinesis+getStats) ⇒ <code>Object</code>
+            * [.getShardAssignments()](#module_lifion-kinesis--Kinesis+getShardAssignments) ⇒ <code>Promise</code>
         * _static_
             * [.getStats()](#module_lifion-kinesis--Kinesis.getStats) ⇒ <code>Object</code>
 
@@ -220,10 +293,11 @@ Initializes a new instance of the Kinesis client.
 | [options.encryption] | <code>Object</code> |  | The encryption options to enforce in the stream. |
 | [options.encryption.type] | <code>string</code> |  | The encryption type to use. |
 | [options.encryption.keyId] | <code>string</code> |  | The GUID for the customer-managed AWS KMS key        to use for encryption. This value can be a globally unique identifier, a fully        specified ARN to either an alias or a key, or an alias name prefixed by "alias/". |
-| [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start         fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
+| [options.enhancedConsumerIdleTimeout] | <code>number</code> | <code>0</code> | When greater than `0` and        `useEnhancedFanOut` is `true`, enhanced fan-out consumers that have stayed unused for        at least this many milliseconds are deregistered from AWS (so they stop incurring        charges), keeping at least one registered. They are re-registered as the consumer group        scales back up, which takes time as AWS makes them active. Set this comfortably above        the lease and heartbeat cycles to avoid removing consumers that are briefly idle.        Defaults to `0`, which keeps every registered consumer in place. |
+| [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start        fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
 | [options.leaseAcquisitionInterval] | <code>number</code> | <code>20000</code> | The interval in milliseconds for how often to        attempt lease acquisitions. |
 | [options.leaseAcquisitionRecoveryInterval] | <code>number</code> | <code>5000</code> | The interval in milliseconds for how often        to re-attempt lease acquisitions when an error is returned from aws. |
-| [options.limit] | <code>number</code> | <code>10000</code> | The limit of records per get records call (only        applicable with `useEnhancedFanOut` is set to `false`) |
+| [options.limit] | <code>number</code> | <code>10000</code> | The maximum number of records to request in a single        `GetRecords` call (only applicable when `useEnhancedFanOut` is set to `false`). Kinesis        may return fewer records than this; the client keeps polling to deliver the rest. |
 | [options.logger] | <code>Object</code> |  | An object with the `warn`, `debug`, and `error` functions        that will be used for logging purposes. If not provided, logging will be omitted. |
 | [options.maxEnhancedConsumers] | <code>number</code> | <code>5</code> | An option to set the number of enhanced        fan-out consumer ARNs that the module should initialize. Defaults to 5.        Providing a number above the AWS limit (20) or below 1 will result in using the default. |
 | [options.noRecordsPollDelay] | <code>number</code> | <code>1000</code> | The delay in milliseconds before        attempting to get more records when there were none in the previous attempt (only        applicable when `useEnhancedFanOut` is set to `false`) |
@@ -235,6 +309,7 @@ Initializes a new instance of the Kinesis client.
 | [options.s3.nonS3Keys] | <code>Array.&lt;string&gt;</code> | <code>[]</code> | If the `useS3ForLargeItems` option is set to        `true`, the `nonS3Keys` option lists the keys that will be sent normally on the kinesis record. |
 | [options.s3.tags] | <code>string</code> |  | If provided, the client will ensure that the        S3 bucket is tagged with these tags. If the bucket already has tags, they will be merged. |
 | [options.shardCount] | <code>number</code> | <code>1</code> | The number of shards that the newly-created stream        will use (if the `createStreamIfNeeded` option is set) |
+| [options.shardIds] | <code>Array.&lt;string&gt;</code> |  | When provided, the client consumes only these        specific shards instead of every shard in the stream. Setting this puts the client in        standalone mode (it reads the listed shards directly and does not take part in the        consumer group's automatic shard assignment, so `useAutoShardAssignment` is ignored).        Shard IDs that aren't found in the stream are logged and skipped. |
 | [options.shouldDeaggregate] | <code>string</code> \| <code>boolean</code> | <code>&quot;auto&quot;</code> | Whether the method retrieving the records             should expect aggregated records and deaggregate them appropriately. |
 | [options.shouldParseJson] | <code>string</code> \| <code>boolean</code> | <code>&quot;auto&quot;</code> | Whether if retrieved records' data should be parsed as JSON or not.        Set to "auto" to only attempt parsing if data looks like JSON. Set to true to force data parse. |
 | [options.statsInterval] | <code>number</code> | <code>30000</code> | The interval in milliseconds for how often to        emit the "stats" event. The event is only available while the consumer is running. |
@@ -320,6 +395,17 @@ Returns statistics for the instance of the client.
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
 **Returns**: <code>Object</code> - An object with the statistics.  
+<a name="module_lifion-kinesis--Kinesis+getShardAssignments"></a>
+
+#### kinesis.getShardAssignments() ⇒ <code>Promise</code>
+Returns the shards assigned to each consumer in the same group, so it's possible to inspect
+how the stream shards are currently distributed across the consumers sharing a group. The
+consumer must be started before calling this (see `startConsumer`).
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Fulfil**: <code>Object</code> - A map keyed by consumer ID, where each entry has the consumer details and
+       a sorted array with the IDs of the shards assigned to that consumer.  
+**Reject**: <code>Error</code> - If the consumer hasn't been started yet.  
 <a name="module_lifion-kinesis--Kinesis.getStats"></a>
 
 #### Kinesis.getStats() ⇒ <code>Object</code>

@@ -1,5 +1,3 @@
-'use strict';
-
 async function asyncRetry(func, opts) {
   let data;
   let error;
@@ -26,4 +24,4 @@ async function asyncRetry(func, opts) {
   return data;
 }
 
-module.exports = asyncRetry;
+export default asyncRetry;

@@ -8,9 +8,9 @@ export default defineConfig({
     coverage: { enabled: false },
     environment: 'node',
     fileParallelism: false,
-    globalSetup: ['test/integration/setup/wait-for-localstack.mjs'],
+    globalSetup: ['test/integration/setup/wait-for-localstack.js'],
     hookTimeout: 120_000,
-    include: ['test/integration/**/*.test.mjs'],
+    include: ['test/integration/**/*.test.js'],
     pool: 'forks',
     reporters: ['default'],
     testTimeout: 120_000
