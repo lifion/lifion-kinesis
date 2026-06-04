@@ -117,6 +117,20 @@ kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
 kinesis.startConsumer();
 ```
 
+### Reading specific shards
+
+By default the client reads from every shard, either by distributing them across the consumer group (`useAutoShardAssignment: true`) or by reading them all from a single client (`useAutoShardAssignment: false`). To read only a subset, pass `shardIds`:
+
+```js
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  shardIds: ['shardId-000000000000', 'shardId-000000000002']
+});
+kinesis.startConsumer();
+```
+
+With `shardIds` set, the client reads exactly those shards on its own and stays out of the group's automatic shard assignment, so `useAutoShardAssignment` doesn't apply. Shard IDs that aren't in the stream are logged and skipped.
+
 ### Inspecting shard assignments
 
 When several consumers share a group, the client spreads the stream's shards across them. `getShardAssignments()` reports who currently owns what, keyed by consumer ID, so you can see how the work is distributed without querying the DynamoDB state table yourself. The consumer has to be started first.
