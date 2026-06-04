@@ -94,10 +94,10 @@ In polling mode, `limit` (default `10000`) maps to the `Limit` parameter of the 
 
 ### Manual checkpoints and paused polling
 
-`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
+`setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself:
 
-- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint.
-- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first.
+- With `useAutoCheckpoints: false`, each `data` event includes `setCheckpoint(sequenceNumber)`. Call it once you've processed up to a record to store that sequence number as the shard's checkpoint. This works in both polling and enhanced fan-out mode (`useEnhancedFanOut: true`).
+- With `usePausedPolling: true`, each `data` event includes `continuePolling()`. The client holds off on the next batch until you call it, which gives you room to finish processing first. Paused polling applies to polling mode only (`useEnhancedFanOut: false`).
 
 ```js
 const kinesis = new Kinesis({
