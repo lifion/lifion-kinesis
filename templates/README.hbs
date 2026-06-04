@@ -122,6 +122,18 @@ kinesis.startConsumer();
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
 
+## Enhanced fan-out over HTTP/1.1
+
+The enhanced fan-out consumer reads `SubscribeToShard` over HTTP/1.1. It streams the response as a chunked `application/vnd.amazon.eventstream` body and parses the binary frames itself with [`lifion-aws-event-stream`](https://github.com/lifion/lifion-aws-event-stream), rather than going through the AWS SDK's HTTP/2 client.
+
+That can be surprising, since AWS announced and documents enhanced fan-out as an HTTP/2 push API. In practice the Kinesis data endpoint doesn't negotiate `h2` over the usual TLS ALPN handshake, so `SubscribeToShard` arrives as an HTTP/1.1 stream carrying AWS's own event-stream frames. @eaviles reverse-engineered that wire format for the v1 client, and the HTTP/1.1 path has run in production since. Other clients have hit the same thing (see the references below), so if you're considering a move to HTTP/2 here, it's worth knowing the endpoint won't ALPN-negotiate it today (last checked 2026-06-04).
+
+References:
+
+- [Amazon Kinesis Data Streams Adds Enhanced Fan-Out and HTTP/2](https://aws.amazon.com/blogs/aws/kds-enhanced-fanout/), the original announcement, which presents the feature as HTTP/2.
+- [`SubscribeToShard` API reference](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_SubscribeToShard.html), which also describes it as establishing an HTTP/2 connection.
+- [aws-sdk-cpp #3115](https://github.com/aws/aws-sdk-cpp/discussions/3115) and [#3118](https://github.com/aws/aws-sdk-cpp/issues/3118), where others observe `SubscribeToShard` going over HTTP/1.1 with batchy, high-latency delivery.
+
 ## State table (DynamoDB)
 
 The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
