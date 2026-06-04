@@ -53,6 +53,27 @@ asyncPipeline(
 kinesis.startConsumer();
 ```
 
+## Credentials
+
+Starting with v2, lifion-kinesis runs on the AWS SDK for JavaScript v3. In most setups you don't pass any credentials: the SDK resolves them from its default provider chain, which reads environment variables, shared config files, web identity tokens, and the IAM role attached to your ECS task or EC2 instance. That covers the same sources the v1 client relied on.
+
+To run with specific credentials, pass a `credentials` object or an AWS [credential provider](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html):
+
+```js
+const { fromIni } = require('@aws-sdk/credential-providers');
+
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  credentials: fromIni({ profile: 'my-profile' })
+});
+```
+
+Any AWS SDK v3 client option (`region`, `endpoint`, `credentials`, and so on) can be set at the top level for the Kinesis client, and under the `dynamoDb` and `s3` options for those services.
+
+### Upgrading from v1
+
+The top-level `accessKeyId`, `secretAccessKey`, and `sessionToken` options are no longer read. The AWS SDK v3 only accepts a `credentials` object or provider, so passing those keys now raises a clear error. If you were setting them directly, wrap them in a `credentials` object. A `region` also needs to be resolvable, whether from `AWS_REGION`, your shared config, or the `region` option.
+
 ## Consuming records
 
 The client is an object-mode readable stream. Each `data` event hands you an object with a batch of records and some context about where they came from:

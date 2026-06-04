@@ -21,9 +21,14 @@ export function uniqueStreamName(prefix = 'lifion-it') {
 export function createClient(overrides = {}) {
   const { dynamoDb: dynamoDbOverrides, ...rest } = overrides;
   return new Kinesis({
-    ...CREDENTIALS,
     createStreamIfNeeded: true,
-    dynamoDb: { ...CREDENTIALS, endpoint: ENDPOINT, region: REGION, ...dynamoDbOverrides },
+    credentials: CREDENTIALS,
+    dynamoDb: {
+      credentials: CREDENTIALS,
+      endpoint: ENDPOINT,
+      region: REGION,
+      ...dynamoDbOverrides
+    },
     endpoint: ENDPOINT,
     initialPositionInStream: 'TRIM_HORIZON',
     leaseAcquisitionInterval: 2_000,
