@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 jobs:
   back-merge:
     name: Back-merge main into develop
@@ -21,15 +22,13 @@ jobs:
           private-key: ${{ secrets.BACKMERGE_APP_KEY }}
       - name: Back-merge main into develop
         env:
+          APP_ID: ${{ vars.BACKMERGE_APP_ID }}
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
           FALLBACK_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
 
-          # Happy path: a configured GitHub App merges main into develop directly
-          # via the server-side Merges API (GitHub-signed commit), bypassing
-          # develop's protection. No PR, no human step.
           if [ -n "${APP_TOKEN:-}" ]; then
             echo "App token present; attempting a direct server-side merge."
             if GH_TOKEN="$APP_TOKEN" gh api -X POST "repos/$REPO/merges" \
@@ -39,11 +38,12 @@ jobs:
             fi
             echo "Direct merge was rejected; falling back to a pull request."
             cat /tmp/merge.err || true
+          elif [ -n "${APP_ID:-}" ]; then
+            echo "::warning::BACKMERGE_APP_ID is set but no App token was minted. Check the BACKMERGE_APP_KEY secret and the App installation. Falling back to a pull request."
           else
-            echo "No App token configured; opening a back-merge pull request."
+            echo "No back-merge App configured; opening a pull request."
           fi
 
-          # Fallback: open (or reuse) a main -> develop PR with the default token.
           export GH_TOKEN="$FALLBACK_TOKEN"
           if [ -n "$(gh pr list --base develop --head main --state open --json number --jq '.[0].number // empty')" ]; then
             echo "A back-merge PR is already open."
