@@ -155,6 +155,10 @@ References:
 - [`SubscribeToShard` API reference](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_SubscribeToShard.html), which also describes it as establishing an HTTP/2 connection.
 - [aws-sdk-cpp #3115](https://github.com/aws/aws-sdk-cpp/discussions/3115) and [#3118](https://github.com/aws/aws-sdk-cpp/issues/3118), where others observe `SubscribeToShard` going over HTTP/1.1 with batchy, high-latency delivery.
 
+### Deregistering idle enhanced consumers
+
+The client pre-registers up to `maxEnhancedConsumers` enhanced fan-out consumers, and AWS bills for each registered consumer whether or not it's reading. If your consumer group scales down, the extra consumers sit idle and keep costing money. Set `enhancedConsumerIdleTimeout` (in milliseconds) to have the client deregister consumers that have stayed unused for that long, keeping at least one. They get re-registered as the group scales back up, which takes a little while since AWS has to make each one active again, so pick a timeout comfortably larger than your lease and heartbeat cycles. It defaults to `0`, which leaves every registered consumer in place.
+
 ## State table (DynamoDB)
 
 The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
@@ -275,7 +279,8 @@ Initializes a new instance of the Kinesis client.
 | [options.encryption] | <code>Object</code> |  | The encryption options to enforce in the stream. |
 | [options.encryption.type] | <code>string</code> |  | The encryption type to use. |
 | [options.encryption.keyId] | <code>string</code> |  | The GUID for the customer-managed AWS KMS key        to use for encryption. This value can be a globally unique identifier, a fully        specified ARN to either an alias or a key, or an alias name prefixed by "alias/". |
-| [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start         fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
+| [options.enhancedConsumerIdleTimeout] | <code>number</code> | <code>0</code> | When greater than `0` and        `useEnhancedFanOut` is `true`, enhanced fan-out consumers that have stayed unused for        at least this many milliseconds are deregistered from AWS (so they stop incurring        charges), keeping at least one registered. They are re-registered as the consumer group        scales back up, which takes time as AWS makes them active. Set this comfortably above        the lease and heartbeat cycles to avoid removing consumers that are briefly idle.        Defaults to `0`, which keeps every registered consumer in place. |
+| [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start        fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
 | [options.leaseAcquisitionInterval] | <code>number</code> | <code>20000</code> | The interval in milliseconds for how often to        attempt lease acquisitions. |
 | [options.leaseAcquisitionRecoveryInterval] | <code>number</code> | <code>5000</code> | The interval in milliseconds for how often        to re-attempt lease acquisitions when an error is returned from aws. |
 | [options.limit] | <code>number</code> | <code>10000</code> | The maximum number of records to request in a single        `GetRecords` call (only applicable when `useEnhancedFanOut` is set to `false`). Kinesis        may return fewer records than this; the client keeps polling to deliver the rest. |

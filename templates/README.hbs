@@ -155,6 +155,10 @@ References:
 - [`SubscribeToShard` API reference](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_SubscribeToShard.html), which also describes it as establishing an HTTP/2 connection.
 - [aws-sdk-cpp #3115](https://github.com/aws/aws-sdk-cpp/discussions/3115) and [#3118](https://github.com/aws/aws-sdk-cpp/issues/3118), where others observe `SubscribeToShard` going over HTTP/1.1 with batchy, high-latency delivery.
 
+### Deregistering idle enhanced consumers
+
+The client pre-registers up to `maxEnhancedConsumers` enhanced fan-out consumers, and AWS bills for each registered consumer whether or not it's reading. If your consumer group scales down, the extra consumers sit idle and keep costing money. Set `enhancedConsumerIdleTimeout` (in milliseconds) to have the client deregister consumers that have stayed unused for that long, keeping at least one. They get re-registered as the group scales back up, which takes a little while since AWS has to make each one active again, so pick a timeout comfortably larger than your lease and heartbeat cycles. It defaults to `0`, which leaves every registered consumer in place.
+
 ## State table (DynamoDB)
 
 The client stores its consumer state (shard leases and checkpoints) in a DynamoDB table, and it creates and manages that table for you. You don't have to create it ahead of time.
