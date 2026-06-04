@@ -7,7 +7,7 @@ This is how a release goes out. Cutting one comes down to a single button in the
 1. **Cut Release** (`.github/workflows/release-cut.yml`, manual). Bumps the version on `develop`, regenerates `CHANGELOG.md`, pushes a `release/X.Y.Z` branch, and opens a PR into `main`.
 2. **You review and merge that PR into `main`.** This is the gate. Nothing publishes until you merge.
 3. **Publish Module** (`.github/workflows/publish-module.yml`, on push to `main`). Re-runs lint and tests, publishes to npm with provenance over OIDC (skips if the version is already published), then tags `vX.Y.Z` and creates the GitHub Release with generated notes.
-4. **Back-merge** (`.github/workflows/backmerge.yml`, on push to `main`). Opens a `main` → `develop` PR so the version bump and changelog flow back.
+4. **Back-merge** (`.github/workflows/backmerge.yml`, on push to `main`). Syncs the version bump and changelog back to `develop`. With the back-merge App configured (see below) it merges `main` into `develop` directly, no PR. Without it, or if the merge is blocked, it opens a `main` → `develop` PR to admin-merge.
 
 ## Cutting a release
 
@@ -34,9 +34,26 @@ Merge with a regular merge commit. Once it lands on `main`, publish, tag, releas
 
 ## After the release
 
-- Merge the back-merge PR (`main` → `develop`) once it is green. It is opened by the token too, so admin-merge applies.
+- The `main` → `develop` back-merge runs on its own. With the App configured it merges directly and there is nothing to do. If it fell back to a PR (no App, or the merge was blocked), admin-merge that PR once you see it.
 - Leave `support/1.x` alone for a main-line release. It tracks v1 and must not be fast-forwarded to `main` once v2 has shipped.
 - Post any "fix is out" notes on the issues the release closed.
+
+## Back-merge automation (GitHub App)
+
+The default `GITHUB_TOKEN` cannot write to protected `develop` (it can neither trigger the required checks nor bypass protection), so without help the back-merge can only open a PR that you then admin-merge. A GitHub App removes that manual step: `backmerge.yml` mints a short-lived token from the App and merges `main` into `develop` server-side.
+
+It is opt-in. Until the two settings below exist, the workflow just opens the PR as before, so it is safe to run without the App.
+
+One-time setup:
+
+1. **Create the App** (org-owned is best, so it outlives any one person): **lifion org → Settings → Developer settings → GitHub Apps → New GitHub App**. No webhook. Repository permissions: **Contents: Read and write**, **Pull requests: Read and write**, and **Administration: Read and write** (the last is what lets it clear `develop`'s required status checks, since classic protection only yields to admins).
+2. **Generate a private key** for the App and download the `.pem`.
+3. **Install** the App on `lifion-kinesis` only.
+4. In the repo, add a **variable** `BACKMERGE_APP_ID` (the App's numeric ID) and a **secret** `BACKMERGE_APP_KEY` (the full contents of the `.pem`).
+
+The first back-merge after setup confirms the direct path; if anything is off it falls back to a PR, so nothing gets stuck. The merge commit is created by the Merges API, so it is GitHub-signed (verified), which satisfies the signed-commits rule on `develop`.
+
+Note the trade-off: the App's private key is a long-lived stored credential with admin scope on this repo. Keep it org-owned, scoped to this one repo, and rotate the key if it is ever exposed.
 
 ## v1 maintenance releases
 
