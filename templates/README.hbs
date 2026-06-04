@@ -4,6 +4,8 @@
 
 Lifion's Node.js client for [Amazon Kinesis Data Streams](https://aws.amazon.com/kinesis/data-streams/).
 
+> **Upgrading from v1?** v2 requires Node.js 22.12+ and ships as an ES module. See the [migration guide](./MIGRATION.md) for the full list of changes.
+
 ## Getting Started
 
 To install the module:
@@ -12,16 +14,16 @@ To install the module:
 npm install lifion-kinesis --save
 ```
 
-The main module export is a Kinesis class that instantiates as a [readable stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams).
+The main module export is a Kinesis class that instantiates as a [readable stream](https://nodejs.org/api/stream.html#readable-streams).
 
 ```js
-const Kinesis = require('lifion-kinesis');
+import Kinesis from 'lifion-kinesis';
 
 const kinesis = new Kinesis({
   streamName: 'sample-stream'
-  /* other options from AWS.Kinesis */
+  /* plus any AWS SDK v3 client options */
 });
-kinesis.on('data', data => {
+kinesis.on('data', (data) => {
   console.log('Incoming data:', data);
 });
 kinesis.startConsumer();
@@ -30,19 +32,19 @@ kinesis.startConsumer();
 To take advantage of back-pressure, the client can be piped to a writable stream:
 
 ```js
-const { promisify } = require('util');
-const Kinesis = require('lifion-kinesis');
-const stream = require('stream');
+import { Writable, pipeline } from 'node:stream';
+import { promisify } from 'node:util';
+import Kinesis from 'lifion-kinesis';
 
-const asyncPipeline = promisify(stream.pipeline);
+const asyncPipeline = promisify(pipeline);
 const kinesis = new Kinesis({
   streamName: 'sample-stream'
-  /* other options from AWS.Kinesis */
+  /* plus any AWS SDK v3 client options */
 });
 
 asyncPipeline(
   kinesis,
-  new stream.Writable({
+  new Writable({
     objectMode: true,
     write(data, encoding, callback) {
       console.log(data);
@@ -60,7 +62,7 @@ Starting with v2, lifion-kinesis runs on the AWS SDK for JavaScript v3. In most 
 To run with specific credentials, pass a `credentials` object or an AWS [credential provider](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html):
 
 ```js
-const { fromIni } = require('@aws-sdk/credential-providers');
+import { fromIni } from '@aws-sdk/credential-providers';
 
 const kinesis = new Kinesis({
   streamName: 'sample-stream',
@@ -70,9 +72,7 @@ const kinesis = new Kinesis({
 
 Any AWS SDK v3 client option (`region`, `endpoint`, `credentials`, and so on) can be set at the top level for the Kinesis client, and under the `dynamoDb` and `s3` options for those services.
 
-### Upgrading from v1
-
-The top-level `accessKeyId`, `secretAccessKey`, and `sessionToken` options are no longer read. The AWS SDK v3 only accepts a `credentials` object or provider, so passing those keys now raises a clear error. If you were setting them directly, wrap them in a `credentials` object. A `region` also needs to be resolvable, whether from `AWS_REGION`, your shared config, or the `region` option.
+> Upgrading from v1? The top-level `accessKeyId`, `secretAccessKey`, and `sessionToken` options are no longer read; wrap them in a `credentials` object instead. See the [migration guide](./MIGRATION.md) for this and the other changes in v2.
 
 ## Consuming records
 
