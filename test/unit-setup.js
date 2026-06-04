@@ -5,7 +5,10 @@ import { vi } from 'vitest';
 // so apply them once here for the whole unit suite. Each vi.mock with no factory
 // resolves to the matching file in the repo-root __mocks__ dir.
 vi.mock('async-retry');
-vi.mock('aws-sdk');
+vi.mock('@aws-sdk/client-kinesis');
+vi.mock('@aws-sdk/client-dynamodb');
+vi.mock('@aws-sdk/lib-dynamodb');
+vi.mock('@aws-sdk/client-s3');
 vi.mock('got');
 vi.mock('lifion-aws-event-stream');
 vi.mock('short-uuid');

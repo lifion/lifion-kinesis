@@ -53,6 +53,27 @@ asyncPipeline(
 kinesis.startConsumer();
 ```
 
+## Credentials
+
+Starting with v2, lifion-kinesis runs on the AWS SDK for JavaScript v3. In most setups you don't pass any credentials: the SDK resolves them from its default provider chain, which reads environment variables, shared config files, web identity tokens, and the IAM role attached to your ECS task or EC2 instance. That covers the same sources the v1 client relied on.
+
+To run with specific credentials, pass a `credentials` object or an AWS [credential provider](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html):
+
+```js
+const { fromIni } = require('@aws-sdk/credential-providers');
+
+const kinesis = new Kinesis({
+  streamName: 'sample-stream',
+  credentials: fromIni({ profile: 'my-profile' })
+});
+```
+
+Any AWS SDK v3 client option (`region`, `endpoint`, `credentials`, and so on) can be set at the top level for the Kinesis client, and under the `dynamoDb` and `s3` options for those services.
+
+### Upgrading from v1
+
+The top-level `accessKeyId`, `secretAccessKey`, and `sessionToken` options are no longer read. The AWS SDK v3 only accepts a `credentials` object or provider, so passing those keys now raises a clear error. If you were setting them directly, wrap them in a `credentials` object. A `region` also needs to be resolvable, whether from `AWS_REGION`, your shared config, or the `region` option.
+
 ## Consuming records
 
 The client is an object-mode readable stream. Each `data` event hands you an object with a batch of records and some context about where they came from:
@@ -100,6 +121,18 @@ kinesis.startConsumer();
 - Support for a polling mode, using the [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html), with automatic checkpointing.
 - Support for multiple concurrent consumers through automatic assignment of shards.
 - Support for sending messages to streams, with auto-retries.
+
+## Enhanced fan-out over HTTP/1.1
+
+The enhanced fan-out consumer reads `SubscribeToShard` over HTTP/1.1. It streams the response as a chunked `application/vnd.amazon.eventstream` body and parses the binary frames itself with [`lifion-aws-event-stream`](https://github.com/lifion/lifion-aws-event-stream), rather than going through the AWS SDK's HTTP/2 client.
+
+That can be surprising, since AWS announced and documents enhanced fan-out as an HTTP/2 push API. In practice the Kinesis data endpoint doesn't negotiate `h2` over the usual TLS ALPN handshake, so `SubscribeToShard` arrives as an HTTP/1.1 stream carrying AWS's own event-stream frames. @eaviles reverse-engineered that wire format for the v1 client, and the HTTP/1.1 path has run in production since. Other clients have hit the same thing (see the references below), so if you're considering a move to HTTP/2 here, it's worth knowing the endpoint won't ALPN-negotiate it today (last checked 2026-06-04).
+
+References:
+
+- [Amazon Kinesis Data Streams Adds Enhanced Fan-Out and HTTP/2](https://aws.amazon.com/blogs/aws/kds-enhanced-fanout/), the original announcement, which presents the feature as HTTP/2.
+- [`SubscribeToShard` API reference](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_SubscribeToShard.html), which also describes it as establishing an HTTP/2 connection.
+- [aws-sdk-cpp #3115](https://github.com/aws/aws-sdk-cpp/discussions/3115) and [#3118](https://github.com/aws/aws-sdk-cpp/issues/3118), where others observe `SubscribeToShard` going over HTTP/1.1 with batchy, high-latency delivery.
 
 ## State table (DynamoDB)
 

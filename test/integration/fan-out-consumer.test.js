@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 import { collectRecords, createClient, distinctIds, uniqueStreamName } from './helpers/client.js';
 import { startFanOutProxy } from './helpers/fan-out-proxy.js';
@@ -32,6 +33,7 @@ describe('enhanced fan-out consumer (SubscribeToShard)', () => {
     client = createClient({
       endpoint: proxy.url,
       maxEnhancedConsumers: 1,
+      requestHandler: new NodeHttpHandler(),
       streamName,
       useEnhancedFanOut: true
     });
