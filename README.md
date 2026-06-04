@@ -88,6 +88,10 @@ kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
 
 Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
 
+### Batch sizes and `limit`
+
+In polling mode, `limit` (default `10000`) maps to the `Limit` parameter of the Kinesis [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html). It's an upper bound on how many records a single call can return, so a `data` event often carries fewer records than `limit` even when the shard still has plenty waiting. Kinesis returns whatever happens to be in the next batch, capped by `limit` or by 10 MB, whichever it reaches first. The client keeps polling and delivers the rest in later `data` events, so you still receive every record over time. To gauge how far behind you are, `millisBehindLatest` reports the lag in milliseconds; it trends toward `0` as you catch up to the tip of the shard.
+
 ### Manual checkpoints and paused polling
 
 `setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
@@ -256,7 +260,7 @@ Initializes a new instance of the Kinesis client.
 | [options.initialPositionInStream] | <code>string</code> | <code>&quot;LATEST&quot;</code> | The location in the shard from which the Consumer will start         fetching records from when the application starts for the first time and there is no checkpoint for the shard.        Set to LATEST to fetch new data only        Set to TRIM_HORIZON to start from the oldest available data record. |
 | [options.leaseAcquisitionInterval] | <code>number</code> | <code>20000</code> | The interval in milliseconds for how often to        attempt lease acquisitions. |
 | [options.leaseAcquisitionRecoveryInterval] | <code>number</code> | <code>5000</code> | The interval in milliseconds for how often        to re-attempt lease acquisitions when an error is returned from aws. |
-| [options.limit] | <code>number</code> | <code>10000</code> | The limit of records per get records call (only        applicable with `useEnhancedFanOut` is set to `false`) |
+| [options.limit] | <code>number</code> | <code>10000</code> | The maximum number of records to request in a single        `GetRecords` call (only applicable when `useEnhancedFanOut` is set to `false`). Kinesis        may return fewer records than this; the client keeps polling to deliver the rest. |
 | [options.logger] | <code>Object</code> |  | An object with the `warn`, `debug`, and `error` functions        that will be used for logging purposes. If not provided, logging will be omitted. |
 | [options.maxEnhancedConsumers] | <code>number</code> | <code>5</code> | An option to set the number of enhanced        fan-out consumer ARNs that the module should initialize. Defaults to 5.        Providing a number above the AWS limit (20) or below 1 will result in using the default. |
 | [options.noRecordsPollDelay] | <code>number</code> | <code>1000</code> | The delay in milliseconds before        attempting to get more records when there were none in the previous attempt (only        applicable when `useEnhancedFanOut` is set to `false`) |
