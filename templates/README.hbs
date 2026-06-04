@@ -117,6 +117,23 @@ kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
 kinesis.startConsumer();
 ```
 
+### Inspecting shard assignments
+
+When several consumers share a group, the client spreads the stream's shards across them. `getShardAssignments()` reports who currently owns what, keyed by consumer ID, so you can see how the work is distributed without querying the DynamoDB state table yourself. The consumer has to be started first.
+
+```js
+const kinesis = new Kinesis({ streamName: 'sample-stream' });
+await kinesis.startConsumer();
+
+const assignments = await kinesis.getShardAssignments();
+// {
+//   'consumer-a': { host, pid, isActive, shards: ['shardId-000000000000', …], … },
+//   'consumer-b': { … }
+// }
+```
+
+Each entry carries the consumer's `appName`, `host`, `pid`, `startedOn`, `heartbeat`, `isActive`, and `isStandalone`, along with the sorted `shards` it's assigned.
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.

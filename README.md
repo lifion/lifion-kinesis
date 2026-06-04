@@ -117,6 +117,23 @@ kinesis.on('data', async ({ records, setCheckpoint, continuePolling }) => {
 kinesis.startConsumer();
 ```
 
+### Inspecting shard assignments
+
+When several consumers share a group, the client spreads the stream's shards across them. `getShardAssignments()` reports who currently owns what, keyed by consumer ID, so you can see how the work is distributed without querying the DynamoDB state table yourself. The consumer has to be started first.
+
+```js
+const kinesis = new Kinesis({ streamName: 'sample-stream' });
+await kinesis.startConsumer();
+
+const assignments = await kinesis.getShardAssignments();
+// {
+//   'consumer-a': { host, pid, isActive, shards: ['shardId-000000000000', …], … },
+//   'consumer-b': { … }
+// }
+```
+
+Each entry carries the consumer's `appName`, `host`, `pid`, `startedOn`, `heartbeat`, `isActive`, and `isStandalone`, along with the sorted `shards` it's assigned.
+
 ## Features
 
 - Standard [Node.js stream abstraction](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_stream) of Kinesis streams.
@@ -227,6 +244,7 @@ The credentials the client runs with need DynamoDB access to the table: `CreateT
             * [.listShards(params)](#module_lifion-kinesis--Kinesis+listShards) ⇒ <code>Promise</code>
             * [.putRecords(params)](#module_lifion-kinesis--Kinesis+putRecords) ⇒ <code>Promise</code>
             * [.getStats()](#module_lifion-kinesis--Kinesis+getStats) ⇒ <code>Object</code>
+            * [.getShardAssignments()](#module_lifion-kinesis--Kinesis+getShardAssignments) ⇒ <code>Promise</code>
         * _static_
             * [.getStats()](#module_lifion-kinesis--Kinesis.getStats) ⇒ <code>Object</code>
 
@@ -357,6 +375,17 @@ Returns statistics for the instance of the client.
 
 **Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
 **Returns**: <code>Object</code> - An object with the statistics.  
+<a name="module_lifion-kinesis--Kinesis+getShardAssignments"></a>
+
+#### kinesis.getShardAssignments() ⇒ <code>Promise</code>
+Returns the shards assigned to each consumer in the same group, so it's possible to inspect
+how the stream shards are currently distributed across the consumers sharing a group. The
+consumer must be started before calling this (see `startConsumer`).
+
+**Kind**: instance method of [<code>Kinesis</code>](#exp_module_lifion-kinesis--Kinesis)  
+**Fulfil**: <code>Object</code> - A map keyed by consumer ID, where each entry has the consumer details and
+       a sorted array with the IDs of the shards assigned to that consumer.  
+**Reject**: <code>Error</code> - If the consumer hasn't been started yet.  
 <a name="module_lifion-kinesis--Kinesis.getStats"></a>
 
 #### Kinesis.getStats() ⇒ <code>Object</code>
