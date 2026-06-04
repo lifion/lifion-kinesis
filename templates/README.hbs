@@ -88,6 +88,10 @@ kinesis.on('data', ({ records, shardId, streamName, millisBehindLatest }) => {
 
 Every record in `records` carries `sequenceNumber`, `partitionKey`, `approximateArrivalTimestamp`, `encryptionType`, and `data` (the decoded payload, parsed as JSON when it looks like JSON).
 
+### Batch sizes and `limit`
+
+In polling mode, `limit` (default `10000`) maps to the `Limit` parameter of the Kinesis [`GetRecords` API](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_GetRecords.html). It's an upper bound on how many records a single call can return, so a `data` event often carries fewer records than `limit` even when the shard still has plenty waiting. Kinesis returns whatever happens to be in the next batch, capped by `limit` or by 10 MB, whichever it reaches first. The client keeps polling and delivers the rest in later `data` events, so you still receive every record over time. To gauge how far behind you are, `millisBehindLatest` reports the lag in milliseconds; it trends toward `0` as you catch up to the tip of the shard.
+
 ### Manual checkpoints and paused polling
 
 `setCheckpoint` and `continuePolling` show up as properties on that same `data` payload, so they're easy to miss if you go looking for them on the client itself. They're available in polling mode only (`useEnhancedFanOut: false`):
