@@ -16,7 +16,7 @@ jobs:
         id: app-token
         if: ${{ vars.BACKMERGE_APP_ID != '' }}
         continue-on-error: true
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.BACKMERGE_APP_ID }}
           private-key: ${{ secrets.BACKMERGE_APP_KEY }}
