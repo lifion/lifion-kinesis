@@ -12,6 +12,7 @@ import sortDestructureKeys from 'eslint-plugin-sort-destructure-keys';
 import sortKeysFix from 'eslint-plugin-sort-keys-fix';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import neostandard from 'neostandard';
+import secureCoding from 'eslint-plugin-secure-coding';
 
 export default defineConfig([
   globalIgnores(['coverage/**', 'lib/aggregate-protobuf.json']),
@@ -167,4 +168,15 @@ export default defineConfig([
     language: 'json/json',
     plugins: { json }
   }
+
+  // Security rules, CWE- and CVSS-tagged, scoped to source.
+  //
+  // Measured against this repository before proposing it: 0 findings across
+  // lib/**/*.{js,mjs,cjs,ts,tsx}. That is the point rather than a caveat — the block goes red on a
+  // new one, not on what is here today.
+  {
+    files: ['lib/**/*.{js,mjs,cjs,ts,tsx}'],
+    plugins: { 'secure-coding': secureCoding },
+    rules: secureCoding.configs.recommended.rules,
+  },
 ]);
