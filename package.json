@@ -65,7 +65,6 @@
     "lifion-aws-event-stream": "^1.0.7",
     "lru-cache": "^11.5.1",
     "lzutf8": "^0.6.3",
-    "project-name": "^1.0.0",
     "protobufjs": "^8.5.0",
     "short-uuid": "^6.0.3"
   },
