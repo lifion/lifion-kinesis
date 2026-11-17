@@ -70,7 +70,7 @@
     "short-uuid": "^6.0.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.0",
     "@smithy/eventstream-codec": "^4.3.6",
     "@smithy/node-http-handler": "^4.7.6",
