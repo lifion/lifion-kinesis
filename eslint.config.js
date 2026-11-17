@@ -151,6 +151,11 @@ export default defineConfig([
   },
 
   {
+    files: ['lib/project-name.js', 'lib/project-name.test.js'],
+    rules: { 'security/detect-non-literal-fs-filename': 'off' }
+  },
+
+  {
     files: ['lib/records.js'],
     rules: { 'promise/catch-or-return': 'off' }
   },
